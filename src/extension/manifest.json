@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Web App Auth Extension",
+  "version": "1.0",
+  "description": "Chrome extension that allows login through the web app.",
+  "permissions": ["storage", "identity", "tabs"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "host_permissions": [
+    "http://localhost/*",
+    "https://your-app-domain/*"
+  ]
+}
