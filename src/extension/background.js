@@ -2,7 +2,7 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log('Extension installed');
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   //console.log(message)
   if (message.type === 'LOGIN_SUCCESS') {
     // Store the token in chrome storage
@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   console.log("runnnig GET_CUSTOMER")
   if (message.type === 'GET_CUSTOMER') {
     try {
