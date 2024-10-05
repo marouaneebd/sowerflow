@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^4.7.0",
     "firebase": "^10.14.0",
     "firebase-admin": "^12.6.0",
     "lucide-react": "^0.447.0",
