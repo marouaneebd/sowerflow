@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener((message) => {
   console.log("runnnig GET_CUSTOMER")
   if (message.type === 'GET_CUSTOMER') {
     try {
-      fetch("http://localhost:3000/api/auth/session", {
+      fetch("https://my-autobot-jzr06zg97-marouaneebds-projects.vercel.app/api/auth/session", {
         mode: 'cors',
       })
         .then(response => response.json())
@@ -23,7 +23,7 @@ chrome.runtime.onMessage.addListener((message) => {
           if (Object.keys(session).length > 0) {
             //console.log(session)
             try {
-              fetch("http://localhost:3000/api/profile/plan", {
+              fetch("https://my-autobot-jzr06zg97-marouaneebds-projects.vercel.app/api/profile/plan", {
                 method: "POST",
                 mode: 'cors',
                 headers: {

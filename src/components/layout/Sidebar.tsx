@@ -88,7 +88,7 @@ export default function Sidebar() {
       <nav className="h-full flex flex-col bg-gray-900 shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
           <img
-            src="https://hotleads.fr/wp-content/uploads/2024/03/fire.png"//"https://img.logoipsum.com/243.svg"
+            src="/images/fire.png"
             className={`overflow-hidden transition-all ${expanded ? "w-10" : "w-0"
               }`}
             alt=""

@@ -18,6 +18,6 @@
   ],
   "host_permissions": [
     "http://localhost/*",
-    "https://your-app-domain/*"
+    "https://my-autobot-jzr06zg97-marouaneebds-projects.vercel.app/*"
   ]
 }

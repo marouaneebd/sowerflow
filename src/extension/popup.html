@@ -2,11 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Auth Extension</title>
   <script src="popup.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Autobot</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ff6b2b;
+      box-shadow: 0px 4px 10px 0px #ff952b;
+      width: 400px;
+      height: 500px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header img {
+      max-width: 100px;
+    }
+
+    header h1 {
+      font-size: 1.5em;
+      color: #ff6b2b;
+      margin: 10px 0 0;
+    }
+
+    .element {
+      padding: 15px 0;
+    }
+
+    .element-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .element-description {
+      margin-top: 5px;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .launch-btn {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: #ff6b2b;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .launch-btn:hover {
+      background-color: #ff952b;
+    }
+
+    .divider {
+      height: 1px;
+      background-color: #ddd;
+      margin: 20px 0;
+    }
+  </style>
 </head>
 <body>
-  <div id="status"></div>
+  <header>
+    <img src="/images/fire.png" alt="My Autobot Logo" />
+    <h1>My Autobot</h1>
+  </header>
+  <div class="element">
+    <div class="element-title">Feature 1</div>
+    <div class="element-description">Description of feature 1.</div>
+    <button class="launch-btn">Launch</button>
+  </div>
+  <div class="divider"></div>
+
+  <div class="element">
+    <div class="element-title">Feature 2</div>
+    <div class="element-description">Description of feature 2.</div>
+    <button class="launch-btn">Launch</button>
+  </div>
+  <div class="divider"></div>
+
+  <div class="element">
+    <div class="element-title">Feature 3</div>
+    <div class="element-description">Description of feature 3.</div>
+    <button class="launch-btn">Launch</button>
+  </div>
+  <div class="divider"></div>
+  <div id="statusDiv" class="element-title">Text</div>
   <button id="loginButton" style="display:none">Go to Login</button>
   <button id="planButton" style="display:none">Get plan</button>
 </body>

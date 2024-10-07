@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Redirect to the web app's login page when button is clicked
   loginButton.addEventListener('click', function () {
-    chrome.tabs.create({ url: 'http://localhost:3000/home' });
+    chrome.tabs.create({ url: 'https://my-autobot-jzr06zg97-marouaneebds-projects.vercel.app/home' });
   });
 
   // Launch get plan function
