@@ -6,7 +6,7 @@ import BasicButton from '@/components/general/BasicButton';
 
 
 // Initialize Stripe with your public key
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY!);
 
 type PlanTypes = 'assisted' | 'augmented' | 'automated';
 
@@ -32,10 +32,10 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          priceId: 'price_1Q2eySIHyU82otGEK3Te8zGb', // Replace with your Stripe price ID
-          successUrl: `${window.location.origin}/billing`, // Define success page
-          cancelUrl: `${window.location.origin}/billing`, // Define cancel page
-          customerId: session.user.stripeCustomerId, // Pass the user's Stripe customer ID
+          priceId: mapping.price_id[plan],
+          successUrl: `${window.location.origin}/billing`,
+          cancelUrl: `${window.location.origin}/billing`,
+          customerId: session.user.stripeCustomerId,
         }),
       });
 
@@ -85,6 +85,11 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
   };
 
   const mapping = {
+    "price_id": {
+      "assisted": "price_1Q2eySIHyU82otGEK3Te8zGb",
+      "augmented": "price_1Q2eywIHyU82otGEGEYwpbyh",
+      "automated": "price_1Q2ezLIHyU82otGExUGl6dP9"
+    },
     "image": {
       "assisted": "/images/pricing_assisted.png",
       "augmented": "/images/pricing_augmented.png",

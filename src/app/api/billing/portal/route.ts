@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Make sure NEXT_PUBLIC_URL is fully qualified with http:// or https://
-    const returnUrl = `${process.env.NEXT_PUBLIC_URL}/billing`; // Full URL
+    const returnUrl = `${process.env.DOMAIN_URL}/billing`; // Full URL
 
     // Create a Stripe billing portal session
     const portalSession = await stripe.billingPortal.sessions.create({
