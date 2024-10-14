@@ -2,37 +2,55 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { auth } from '../firebase';
+import { useRouter } from 'next/navigation';
+
 
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordAgain, setPasswordAgain] = useState('');
+  const [message, setMessage] = useState('');
+  const router = useRouter();
 
-  const signup = () => {
-    createUserWithEmailAndPassword(auth, email, password);
+
+  const signup = async () => {
+    if (password !== passwordAgain) {
+      setMessage("Passwords do not match!");
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      setMessage("Signup successful! You can now log in.");
+    } catch (error) {
+      setMessage("Signup failed. Please try again.");
+    }
   };
-  
+
   return (
     <>
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            className="mx-auto h-20 w-auto"
-            src="/images/fire.png"
-            alt="Your Company"
-          />
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-white">
-            Sign up
-          </h2>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="bg-white rounded-lg shadow-lg p-10 max-w-lg w-full">
+          <div className="flex flex-col items-center">
+            <img
+              className="h-16 w-16 mb-6"
+              src="/images/fire.png"
+              alt="Logo"
+            />
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Sign Up
+            </h2>
+            <p className="text-gray-500 mb-6 text-center">
+              Create a new account
+            </p>
+          </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <div className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-white">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
               </label>
-              <div className="mt-2">
+              <div className="mt-1">
                 <input
                   id="email"
                   name="email"
@@ -40,60 +58,66 @@ export default function Signup() {
                   autoComplete="email"
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:border-[#ff6b2b] focus:ring-1 focus:ring-[#ff6b2b]"
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-white">
-                  Password
-                </label>
-              </div>
-              <div className="mt-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1">
                 <input
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-white">
-                  Password Again
-                </label>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="passwordAgain"
-                  name="passwordAgain"
-                  type="password"
-                  autoComplete="current-password"
-                  onChange={(e) => setPasswordAgain(e.target.value)}
-                  required
-                  className="block w-full rounded-md border-0 bg-white/5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:border-[#ff6b2b] focus:ring-1 focus:ring-[#ff6b2b]"
                 />
               </div>
             </div>
 
             <div>
+              <label htmlFor="passwordAgain" className="block text-sm font-medium text-gray-700">
+                Confirm Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="passwordAgain"
+                  name="passwordAgain"
+                  type="password"
+                  autoComplete="new-password"
+                  onChange={(e) => setPasswordAgain(e.target.value)}
+                  required
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:border-[#ff6b2b] focus:ring-1 focus:ring-[#ff6b2b]"
+                />
+              </div>
+            </div>
+
+            {message && <p className="mt-2 text-center text-sm text-red-500">{message}</p>}
+
+            <div>
               <button
                 disabled={(!email || !password || !passwordAgain) || (password !== passwordAgain)}
-                onClick={() => signup()}
-                className="disabled:opacity-40 flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                onClick={signup}
+                className="w-full flex justify-center bg-[#ff6b2b] text-white py-2 px-4 rounded-lg hover:bg-[#e66026] transition disabled:opacity-50"
               >
                 Sign Up
               </button>
             </div>
           </div>
+
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Already have an account?{' '}
+            <button onClick={() => router.push('/signin')} className="text-[#ff6b2b] hover:text-[#e66026] font-semibold">
+              Sign In
+            </button>
+          </p>
         </div>
       </div>
     </>
-  )
+  );
 }

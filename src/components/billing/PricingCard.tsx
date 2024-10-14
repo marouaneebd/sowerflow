@@ -6,7 +6,7 @@ import BasicButton from '@/components/general/BasicButton';
 
 
 // Initialize Stripe with your public key
-const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 type PlanTypes = 'assisted' | 'augmented' | 'automated';
 
@@ -34,8 +34,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
         body: JSON.stringify({
           priceId: mapping.price_id[plan],
           successUrl: `${window.location.origin}/billing`,
-          cancelUrl: `${window.location.origin}/billing`,
-          customerId: session.user.stripeCustomerId,
+          cancelUrl: `${window.location.origin}/billing`
         }),
       });
 
@@ -65,9 +64,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          customerId: session.user.stripeCustomerId, // Pass the Stripe customer ID
-        }),
+        body: JSON.stringify({}),
       });
 
       const { url } = await response.json();
@@ -139,7 +136,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
   }
   return (
     <div
-      className={`max-w-sm bg-white rounded-3xl shadow-md p-6 m-6
+      className={`max-w-sm bg-white rounded-3xl shadow-md p-6 m-6 hover:shadow-lg transition-shadow
         border ${selected ? 'border-1 border-orange-500' : 'border border-gray-200'}
       `} style={selected ? { boxShadow: '0 0 3px #ff952b' } : {}}
     >      {/* Badge */}
@@ -194,6 +191,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
         <BasicButton 
           onClick={selected ? handleBillingPortal : handleCheckout}
           buttonText={mapping?.cta_text?.[plan]}
+          type="general"
         />
         </div>
     </div>

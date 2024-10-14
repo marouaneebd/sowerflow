@@ -21,7 +21,7 @@ const Billing = () => {
   }, [status, router]);
 
   return (
-      <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="flex justify-center items-center h-screen">
       <PricingCard plan="assisted" selected={false} />
       <PricingCard plan="augmented" selected={true} />
       <PricingCard plan="automated" selected={false} />

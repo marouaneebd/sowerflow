@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/app/firebase';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { getServerSession } from 'next-auth/next';
 
 
 // GET method for fetching the plan field from a user's profile
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const body = await req.json();
-    // Reference to the document in the 'profiles' collection
-    const docRef = doc(db, 'profiles', body.uid);
+    const session = await getServerSession({ req, ...authOptions });
+    const uid = session?.user?.uid;
+    console.log(session)
+
+
+    if (!uid) {
+      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+    }
+
+
+    const docRef = doc(db, 'profiles', uid);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {

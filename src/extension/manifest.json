@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Web App Auth Extension",
+  "name": "Autobot",
   "version": "1.0",
-  "description": "Chrome extension that allows login through the web app.",
+  "description": "Expand your network, unlock your career: LinkedIn automation with AI",
   "permissions": ["storage", "identity", "tabs"],
   "background": {
     "service_worker": "background.js"
@@ -17,7 +17,6 @@
     }
   ],
   "host_permissions": [
-    "http://localhost/*",
-    "https://my-autobot-jzr06zg97-marouaneebds-projects.vercel.app/*"
+    "http://localhost/*"
   ]
 }

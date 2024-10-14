@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/app/stripe'
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { getServerSession } from 'next-auth/next';
 
 export async function POST(req: NextRequest) {
-    try {
-        const { priceId, successUrl, cancelUrl, customerId } = await req.json();
 
-        const session = await stripe.checkout.sessions.create({
+    const { priceId, successUrl, cancelUrl } = await req.json();
+    const session = await getServerSession({ req, ...authOptions });
+    const customerId = session?.user?.stripeCustomerId
+
+    if (!customerId) {
+        return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+    }
+
+    try {
+        const stripeSession = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             mode: 'subscription',
             line_items: [
@@ -19,7 +28,7 @@ export async function POST(req: NextRequest) {
             cancel_url: cancelUrl,
         });
 
-        return NextResponse.json({ sessionId: session.id });
+        return NextResponse.json({ sessionId: stripeSession.id });
     } catch (error) {
         // Check if the error is an instance of Error
         if (error instanceof Error) {

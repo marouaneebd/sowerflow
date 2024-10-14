@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/app/stripe'
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { getServerSession } from 'next-auth/next';
 
 export async function POST(req: NextRequest) {
   try {
-    const { customerId } = await req.json();
+    const session = await getServerSession({ req, ...authOptions });
+    const customerId = session?.user?.stripeCustomerId
 
     if (!customerId) {
-      return NextResponse.json({ error: 'Missing customer ID' }, { status: 400 });
+      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
     }
 
     // Make sure NEXT_PUBLIC_URL is fully qualified with http:// or https://
-    const returnUrl = `${process.env.DOMAIN_URL}/billing`; // Full URL
+    const returnUrl = `${process.env.NEXT_PUBLIC_DOMAIN_URL}/billing`; // Full URL
 
     // Create a Stripe billing portal session
     const portalSession = await stripe.billingPortal.sessions.create({
