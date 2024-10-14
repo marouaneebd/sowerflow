@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { stripe } from '@/app/stripe'
 import { db } from '@/app/firebase';
-import { doc, getDocs, setDoc, updateDoc, deleteDoc, query, collection, where } from 'firebase/firestore';
+import { doc, getDocs, updateDoc, query, collection, where } from 'firebase/firestore';
 import Stripe from 'stripe';
 
 
