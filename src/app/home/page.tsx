@@ -9,7 +9,6 @@ export default function Home() {
 
   const { data: session, status } = useSession();
 
-
   useEffect(() => {
     // Redirect to sign-in if the session is not authenticated
     if (status === 'unauthenticated') {
