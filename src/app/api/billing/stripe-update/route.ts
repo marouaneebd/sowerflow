@@ -16,13 +16,13 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    const body = await req.text(); // Read body as text for Stripe signature verification
+    const buf = await req.arrayBuffer();
+    const body = Buffer.from(buf);
+    
+    // Proceed with the rest of your code
     const signature = req.headers.get('stripe-signature') as string;
-    console.log(body)
-    console.log(signature)
-    console.log(req.headers)
-
-    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET as string);
+    
   } catch (err) {
     return NextResponse.json({ error: `Webhook Error: ${JSON.stringify(err)}` }, { status: 400 });
   }
