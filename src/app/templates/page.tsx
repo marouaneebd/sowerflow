@@ -4,15 +4,26 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import TemplateModal from '@/components/templates/TemplateModale';
-import BasicButton from '@/components/general/BasicButton'; // Assuming the BasicButton is in this path
+import BasicButton from '@/components/general/BasicButton';
+
+
+interface Template {
+    createdAt: string;
+    updatedAt: string;
+    id: string;
+    uid: string;
+    title: string;
+    description: string;
+    templateContent: string;
+}
 
 export default function Templates() {
     const router = useRouter();
-    const [templates, setTemplates] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false); // New state for create modal
-    const [selectedTemplate, setSelectedTemplate] = useState(null);
+    const [templates, setTemplates] = useState<Template[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
 
-    const { data: session, status } = useSession();
+    const { status } = useSession();
 
     // Redirect to sign-in if the session is not authenticated
     useEffect(() => {
@@ -41,7 +52,7 @@ export default function Templates() {
     }, [isModalOpen]);
 
     // Open edit modal
-    const openModal = (template: any) => {
+    const openModal = (template: Template | null) => {
         setSelectedTemplate(template);
         setIsModalOpen(true);
     };
@@ -56,7 +67,7 @@ export default function Templates() {
                         buttonText="Create New"
                         iconName="Plus" // Pass the icon name as a string
                         type="general"
-                        />
+                    />
                 </div>
 
                 <div className="space-y-6">
@@ -70,7 +81,7 @@ export default function Templates() {
                                 buttonText="Edit"
                                 iconName="Edit" // Pass the icon name as a string
                                 type="general"
-                                />
+                            />
                         </div>
                     ))}
                 </div>

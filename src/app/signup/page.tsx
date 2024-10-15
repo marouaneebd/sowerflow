@@ -23,6 +23,7 @@ export default function Signup() {
       await createUserWithEmailAndPassword(auth, email, password);
       setMessage("Signup successful! You can now log in.");
     } catch (error) {
+      console.log(error);
       setMessage("Signup failed. Please try again.");
     }
   };
@@ -111,7 +112,7 @@ export default function Signup() {
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-500">
-            Already have an account?{' '}
+            Already have an account?
             <button onClick={() => router.push('/signin')} className="text-[#ff6b2b] hover:text-[#e66026] font-semibold">
               Sign In
             </button>

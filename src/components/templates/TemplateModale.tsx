@@ -1,11 +1,21 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Save, Trash2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import BasicButton from '@/components/general/BasicButton'; // Assuming BasicButton is located in this path
 
+interface Template {
+  createdAt: string;
+  updatedAt: string;
+  id: string;
+  uid: string;
+  title: string;
+  description: string;
+  templateContent: string;
+}
+
 interface TemplateModalProps {
-  template: any;
+  template: Template | null;
   closeModal: () => void;
 }
 
