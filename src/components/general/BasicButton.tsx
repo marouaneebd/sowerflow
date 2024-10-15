@@ -1,4 +1,4 @@
-import { useState, createElement, ComponentType } from 'react';
+import { useState, createElement, SVGProps, ComponentType } from 'react';
 import { PulseLoader } from 'react-spinners';
 import * as LucideIcons from 'lucide-react';
 
@@ -32,7 +32,10 @@ const BasicButton: React.FC<BasicButtonProps> = ({ onClick, buttonText, type, ic
   };
 
   // Get the icon component based on the iconName string
-  const IconComponent = iconName ? (LucideIcons[iconName] as React.ComponentType<any>) : null;
+  const IconComponent: ComponentType<SVGProps<SVGSVGElement>> | null = iconName
+    ? (LucideIcons[iconName] as ComponentType<SVGProps<SVGSVGElement>>)
+    : null;
+
 
   return (
     <button
