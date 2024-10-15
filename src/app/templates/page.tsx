@@ -71,11 +71,11 @@ export default function Templates() {
                 </div>
 
                 <div className="space-y-6">
-                    {templates.map((template: any) => (
-                        <div key={template.id} className="bg-white shadow-md rounded-3xl p-6 hover:shadow-lg transition-shadow
+                    {templates.map((template: Template | null) => (
+                        <div key={template?.id} className="bg-white shadow-md rounded-3xl p-6 hover:shadow-lg transition-shadow
                         border-1 border border-gray-200">
-                            <h2 className="text-xl font-semibold text-gray-900 mb-2">{template.title}</h2>
-                            <p className="text-gray-600 mb-4">{template.description}</p>
+                            <h2 className="text-xl font-semibold text-gray-900 mb-2">{template?.title}</h2>
+                            <p className="text-gray-600 mb-4">{template?.description}</p>
                             <BasicButton
                                 onClick={() => openModal(template)} // Open the edit modal
                                 buttonText="Edit"

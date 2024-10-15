@@ -1,13 +1,15 @@
-import { useState, createElement } from 'react';
+import { useState, createElement, ComponentType } from 'react';
 import { PulseLoader } from 'react-spinners';
 import * as LucideIcons from 'lucide-react';
 
 interface BasicButtonProps {
-  onClick: () => any;             // Accept any type of function
-  buttonText: string;             // Text to display when not loading
-  type: 'general' | 'delete';     // Restricting to the expected types for color mapping
-  iconName?: keyof typeof LucideIcons | null;  // Lucide-react icon name must be a valid key
+  onClick: () => void | Promise<void>;  // Adjust return type as needed
+  buttonText: string;
+  type: 'general' | 'delete';
+  iconName?: keyof typeof LucideIcons | null;
 }
+
+
 
 const BasicButton: React.FC<BasicButtonProps> = ({ onClick, buttonText, type, iconName }) => {
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ const BasicButton: React.FC<BasicButtonProps> = ({ onClick, buttonText, type, ic
   };
 
   // Get the icon component based on the iconName string
-  const IconComponent = iconName ? (LucideIcons as any)[iconName] : null;
+  const IconComponent = iconName ? (LucideIcons[iconName] as React.ComponentType<any>) : null;
 
   return (
     <button

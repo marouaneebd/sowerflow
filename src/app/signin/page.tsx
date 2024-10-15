@@ -89,7 +89,7 @@ export default function Signin() {
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-500">
-            Don't have an account?{' '}
+            Don't have an account?
             <button onClick={() => router.push('/signup')} className="text-[#ff6b2b] hover:text-[#e66026] font-semibold">
               Sign Up
             </button>
