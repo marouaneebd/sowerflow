@@ -43,12 +43,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
       }
 
-      querySnapshot.forEach(async (document) => {
-        const docRef = doc(db, 'profiles', document.id); // Assuming you're updating the 'profiles' collection
+      for (const document of querySnapshot.docs) {
+        const docRef = doc(db, 'profiles', document.id);
         await updateDoc(docRef, {
           plan: "new"
         });
-      });
+      }
 
       return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
     } catch (error) {
