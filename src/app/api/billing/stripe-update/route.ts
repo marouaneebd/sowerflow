@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   const subscription = event.data.object as Stripe.Subscription;
 
-  console.log(subscription)
+  console.log(event)
 
   if (event.type === 'customer.subscription.updated') {
     const customerId = subscription.customer as string;
