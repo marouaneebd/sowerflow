@@ -12,11 +12,16 @@ export async function POST(req: NextRequest) {
     //return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   //}
 
+
   let event: Stripe.Event;
 
   try {
     const body = await req.text(); // Read body as text for Stripe signature verification
     const signature = req.headers.get('stripe-signature') as string;
+    console.log(body)
+    console.log(signature)
+    console.log(req.headers)
+
     event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch (err) {
     return NextResponse.json({ error: `Webhook Error: ${JSON.stringify(err)}` }, { status: 400 });
