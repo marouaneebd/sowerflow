@@ -83,9 +83,9 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
 
   const mapping = {
     "price_id": {
-      "assisted": "price_1Q2eySIHyU82otGEK3Te8zGb",
-      "augmented": "price_1Q2eywIHyU82otGEGEYwpbyh",
-      "automated": "price_1Q2ezLIHyU82otGExUGl6dP9"
+      "assisted": "price_1QAd6oIHyU82otGEokYNDgA9",
+      "augmented": "price_1QAd7YIHyU82otGEMpJENleQ",
+      "automated": "price_1QAdGWIHyU82otGElKnoIXcR"
     },
     "image": {
       "assisted": "/images/pricing_assisted.png",
