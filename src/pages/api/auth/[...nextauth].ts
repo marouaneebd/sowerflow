@@ -2,7 +2,7 @@ import NextAuth, { NextAuthOptions, DefaultSession } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { signInWithEmailAndPassword, User as FirebaseUser } from 'firebase/auth';
-import { auth, updateOrCreateStripeCustomerId, getStripeCustomerId } from '@/app/firebase';
+import { auth, initializeProfile, getStripeCustomerId } from '@/app/firebase';
 import { stripe } from '@/app/stripe';
 import { Session } from 'next-auth';
 
@@ -61,7 +61,7 @@ export const authOptions: NextAuthOptions = {
                 email: user.email
               });
               stripeCustomerId = stripeCustomer.id;
-              await updateOrCreateStripeCustomerId(stripeCustomerId, user.uid);
+              await initializeProfile(stripeCustomerId, user.uid);
             }
 
             // Create subscription with 3-day trial if the customer doesn't have an active subscription
@@ -136,7 +136,7 @@ export const authOptions: NextAuthOptions = {
       });
 
       // Save Stripe customer ID in Firestore
-      await updateOrCreateStripeCustomerId(stripeCustomer.id, userId);
+      await initializeProfile(stripeCustomer.id, userId);
     }
   }
 };

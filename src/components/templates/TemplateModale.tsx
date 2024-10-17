@@ -25,6 +25,8 @@ const TemplateModal: React.FC<TemplateModalProps> = ({ template, closeModal }) =
   const [description, setDescription] = useState(template ? template.description : '');
   const [templateContent, setTemplateContent] = useState(template ? template.templateContent : '');
 
+  const isSaveDisabled = !title || !templateContent;
+
   async function saveTemplate() {
     try {
       const method = template ? 'PUT' : 'POST';
@@ -118,6 +120,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({ template, closeModal }) =
             buttonText="Save"
             iconName="Save"
             type="general" // Use button style based on web design
+            disabled={isSaveDisabled}
           />
 
           {/* Delete Button */}

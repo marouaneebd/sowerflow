@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       }));
       return NextResponse.json({ listTemplates });
     } else {
-      return NextResponse.json({ error: 'No templates for this user' }, { status: 400 });
+      return NextResponse.json({ error: 'No templates for this user' }, { status: 201 });
     }
   } catch (error) {
     console.error('Error fetching templates:', error);

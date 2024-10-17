@@ -2,6 +2,46 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, setPersistence, browserLocalPersistence, sendPasswordResetEmail } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
+const templates = [
+  {
+    "title": "Product Manager internship",
+    "description": "A message template to ask for opened positions as a Product Manager intern.",
+    "templateContent": "Hi [name],\nI'm very interested in product management roles and was excited to see your background. I'd love to connect and ask for advice as I look for an internship in the field."
+  },
+  {
+    "title": "M&A internship",
+    "description": "A message template to ask for opened positions as a Megers & Acquisitions intern.",
+    "templateContent": "Hi [name],\nI'm currently exploring opportunities in mergers and acquisitions, and I was really impressed by your experience in the field. I'd love to connect and ask for advice."
+  },
+  {
+    "title": "Sales Trader internship",
+    "description": "A message template to ask for opened positions as a Sales Trader intern.",
+    "templateContent": "Hi [name],\nI'm highly interested in trading and was excited to see your background in the industry. I'd love to connect and seek your guidance as I look for an internship in trading."
+  }
+]
+
+async function initializeTemplates() {
+  for (const template of templates) {
+    try {
+      const response = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: template.title,
+          description: template.description,
+          templateContent: template.templateContent
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to ${template ? 'update' : 'create'} template`);
+      }
+    } catch (error) {
+      console.error('Error saving template:', error);
+    }
+  }
+}
+
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -28,7 +68,7 @@ setPersistence(auth, browserLocalPersistence)
   });
 
 
-export async function updateOrCreateStripeCustomerId(stripeCustomerId: string, uid: string): Promise<void> {
+export async function initializeProfile(stripeCustomerId: string, uid: string): Promise<void> {
   try {
     const db = getFirestore();
     const docRef = doc(db, "profiles", uid); // Reference to the document in the 'profiles' collection
@@ -42,6 +82,8 @@ export async function updateOrCreateStripeCustomerId(stripeCustomerId: string, u
         creditsUsed: 0,
         dateCreditsRefreshed: new Date(new Date().setHours(0, 0, 0, 0))
       });
+      await initializeTemplates();
+      
     }
     console.log("Document successfully written!");
   } catch (error) {

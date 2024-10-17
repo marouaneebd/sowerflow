@@ -7,11 +7,12 @@ interface BasicButtonProps {
   buttonText: string;
   type: 'general' | 'delete';
   iconName?: keyof typeof LucideIcons | null;
+  disabled?: boolean | false;
 }
 
 
 
-const BasicButton: React.FC<BasicButtonProps> = ({ onClick, buttonText, type, iconName }) => {
+const BasicButton: React.FC<BasicButtonProps> = ({ onClick, buttonText, type, iconName, disabled }) => {
   const [loading, setLoading] = useState(false);
 
   const mapColors: Record<'general' | 'delete', string> = {
@@ -40,8 +41,10 @@ const BasicButton: React.FC<BasicButtonProps> = ({ onClick, buttonText, type, ic
   return (
     <button
       onClick={handleClick}
-      className="text-white font-bold py-2 px-4 flex items-center justify-center space-x-2"
-      disabled={loading}
+      className={`text-white font-bold py-2 px-4 flex items-center justify-center space-x-2 transition-opacity duration-200 ${
+        disabled ? 'opacity-50 cursor-not-allowed' : ''
+      }`}
+      disabled={loading || disabled}
       style={{
         width: '150px',
         height: '40px',
