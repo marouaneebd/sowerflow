@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   const priceId = subscription.items.data[0].price.id;
   const plan = (Object.keys(price_ids) as Array<keyof typeof price_ids>).find(key => price_ids[key] === priceId) || null;
   const isTrial = subscription.status === 'trialing'; // Trial status
-  const isActive = subscription.status === 'active'; // Active status
+  const isActive = subscription.status === 'active' || subscription.status === 'trialing'; // Active status
   const subscriptionEndDate = new Date(subscription.current_period_end * 1000); // Subscription end date (timestamp to Date object)
 
   if (!plan) {

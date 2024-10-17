@@ -36,16 +36,13 @@ export async function updateOrCreateStripeCustomerId(stripeCustomerId: string, u
     // Get the current document
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      // If the document exists, update the 'prompt' field
-      await setDoc(docRef, { stripeCustomerId: stripeCustomerId }, { merge: true });
-    } else {
-      // If the document does not exist, create a new document with the 'prompt' field
+    if (!docSnap.exists()) {
       await setDoc(docRef, {
-        stripeCustomerId: stripeCustomerId
+        stripeCustomerId: stripeCustomerId,
+        creditsUsed: 0,
+        dateCreditsRefreshed: new Date(new Date().setHours(0, 0, 0, 0))
       });
     }
-
     console.log("Document successfully written!");
   } catch (error) {
     console.error("Error writing document: ", error);
