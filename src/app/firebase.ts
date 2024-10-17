@@ -41,7 +41,7 @@ export async function updateOrCreateStripeCustomerId(stripeCustomerId: string, u
       await setDoc(docRef, { stripeCustomerId: stripeCustomerId }, { merge: true });
     } else {
       // If the document does not exist, create a new document with the 'prompt' field
-      await setDoc(docRef, { stripeCustomerId: stripeCustomerId });
+      await setDoc(docRef, { stripeCustomerId: stripeCustomerId, isTrial: true });
     }
 
     console.log("Document successfully written!");
