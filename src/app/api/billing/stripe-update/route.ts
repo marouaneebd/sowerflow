@@ -23,49 +23,59 @@ export async function POST(req: NextRequest) {
   }
 
   const subscription = event.data.object as Stripe.Subscription;
+  const customerId = subscription.customer as string;
+  const priceId = subscription.items.data[0].price.id;
+  const plan = (Object.keys(price_ids) as Array<keyof typeof price_ids>).find(key => price_ids[key] === priceId) || null;
+  const isTrial = subscription.status === 'trialing'; // Trial status
+  const isActive = subscription.status === 'active'; // Active status
+  const subscriptionEndDate = new Date(subscription.current_period_end * 1000); // Subscription end date (timestamp to Date object)
 
-  if (event.type === 'customer.subscription.updated') {
-    const customerId = subscription.customer as string;
-    const priceId = subscription.items.data[0].price.id;
-    const isTrial = subscription.status === 'trialing'; // Check if the subscription is in trial
-
-    let plan: string | null = null;
-
-    // Match the priceId with the appropriate plan
-    for (const [key, value] of Object.entries(price_ids)) {
-      if (value === priceId) {
-        plan = key;
-        break;
-      }
-    }
-
-    if (!plan) {
-      return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
-    }
-
-    try {
-      const profilesRef = collection(db, 'profiles');
-      const q = query(profilesRef, where('stripeCustomerId', '==', customerId));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-      }
-
-      for (const document of querySnapshot.docs) {
-        const docRef = doc(db, 'profiles', document.id);
-        await updateDoc(docRef, {
-          plan: plan,
-          isTrial: isTrial // Add the trial status to the user's profile
-        });
-      }
-
-      return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    }
+  if (!plan) {
+    return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
   }
 
-  return NextResponse.json({ received: true }, { status: 200 });
+  try {
+    const profilesRef = collection(db, 'profiles');
+    const q = query(profilesRef, where('stripeCustomerId', '==', customerId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    for (const document of querySnapshot.docs) {
+      const docRef = doc(db, 'profiles', document.id);
+
+      if (event.type === 'customer.subscription.updated') {
+        await updateDoc(docRef, {
+          plan,
+          isTrial,
+          isActive,
+          subscriptionEndDate // Set subscription end date
+        });
+      } else if (event.type === 'customer.subscription.deleted') {
+        // If the subscription is deleted, deactivate the user's subscription
+        await updateDoc(docRef, {
+          isActive: false,
+          isTrial: false
+        });
+      } else if (event.type === 'invoice.payment_failed') {
+        // If a payment fails, deactivate the user's subscription
+        await updateDoc(docRef, {
+          isActive: false
+        });
+      } else if (event.type === 'invoice.payment_succeeded') {
+        // If a payment succeeds, ensure the user is marked as active and not in trial
+        await updateDoc(docRef, {
+          isActive: true,
+          isTrial: false
+        });
+      }
+    }
+
+    return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

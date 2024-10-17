@@ -64,6 +64,20 @@ export const authOptions: NextAuthOptions = {
               await updateOrCreateStripeCustomerId(stripeCustomerId, user.uid);
             }
 
+            // Create subscription with 3-day trial if the customer doesn't have an active subscription
+            const subscriptions = await stripe.subscriptions.list({
+              customer: stripeCustomerId,
+              status: 'all',
+            });
+
+            if (subscriptions.data.length === 0) {
+              await stripe.subscriptions.create({
+                customer: stripeCustomerId,
+                items: [{ price: 'price_1QAd7YIHyU82otGEMpJENleQ' }],
+                trial_period_days: 3, // Set the trial period to 3 days
+              });
+            }
+
             // Return the user object with uid and stripeCustomerId
             return {
               id: user.uid,
