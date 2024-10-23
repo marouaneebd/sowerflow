@@ -27,14 +27,14 @@ export async function GET(req: NextRequest) {
         }
 
         console.log("ok 1")
+        console.log(uid)
+
 
         const templateRef = doc(db, 'templates', templateId);
         const templateSnap = await getDoc(templateRef);
 
         const profileRef = doc(db, 'profiles', uid);
         const profileSnap = await getDoc(profileRef);
-
-        console.log("ok 2")
 
 
         if (profileSnap.exists() && templateSnap.exists()) {
