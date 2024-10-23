@@ -8,7 +8,7 @@ import { getServerSession } from 'next-auth/next';
 export async function POST(req: NextRequest) {
     try {
         // Parse the request body
-        const { templateId, targetFirstName, targetLastName, targetCompany, } = await req.json();
+        const { templateId, targetFirstName, targetLastName, targetCompany } = await req.json();
         const session = await getServerSession({ req, ...authOptions });
         const uid = session?.user?.uid
 

@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
       // Get the 'plan' field value and check if it's valid
       const plan = data?.plan;
-      const validPlans = ['none', 'assisted', 'augmented', 'automated'];
+      const validPlans = ['assisted', 'augmented', 'automated'];
 
       if (validPlans.includes(plan)) {
         return NextResponse.json({ plan });
