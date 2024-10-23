@@ -36,6 +36,11 @@ export async function GET(req: NextRequest) {
         const profileRef = doc(db, 'profiles', uid);
         const profileSnap = await getDoc(profileRef);
 
+        console.log("ok 2")
+
+        console.log(templateSnap)
+        console.log(profileSnap)
+
 
         if (profileSnap.exists() && templateSnap.exists()) {
             console.log('Profile and template found');
