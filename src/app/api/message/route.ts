@@ -25,10 +25,8 @@ export async function GET(req: NextRequest) {
         if (!templateId) {
             return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
         }
-
-        console.log("ok 1")
+        
         console.log(uid)
-
 
         const templateRef = doc(db, 'templates', templateId);
         const templateSnap = await getDoc(templateRef);
@@ -36,14 +34,9 @@ export async function GET(req: NextRequest) {
         const profileRef = doc(db, 'profiles', uid);
         const profileSnap = await getDoc(profileRef);
 
-        console.log("ok 2")
-
-        console.log(templateSnap.data())
-        console.log(profileSnap.data())
 
 
         if (profileSnap.exists() && templateSnap.exists()) {
-            console.log('Profile and template found');
             const profileData = profileSnap.data();
             const templateData = templateSnap.data();
 
@@ -59,7 +52,7 @@ export async function GET(req: NextRequest) {
 
             // Check if user has an active plan and remaining credits
             if (profileData?.isActive && remainingCredits > 0) {
-                let message = templateData?.messageContent;
+                let message = templateData?.templateContent;
                 message = message.replaceAll('[firstname]', targetFirstName || '');
                 message = message.replaceAll('[lastname]', targetLastName || '');
                 message = message.replaceAll('[company]', targetCompany || '');
