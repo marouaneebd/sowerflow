@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
                     });
                 }
                 
+                console.log(message)
                 return NextResponse.json({ message });
             } else {
                 return NextResponse.json({ error: 'Plan not active' }, { status: 400 });
