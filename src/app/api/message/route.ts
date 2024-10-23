@@ -7,8 +7,7 @@ import { getServerSession } from 'next-auth/next';
 export async function OPTIONS() {
     const headers = {
         'Access-Control-Allow-Origin': '*', // Replace '*' with your specific origin if needed
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
     return NextResponse.json({}, { headers });
 }
