@@ -104,13 +104,14 @@ const TemplateModal: React.FC<TemplateModalProps> = ({ template, closeModal }) =
         />
 
         {/* Template Content Input */}
-        <input
-          type="text"
+        <textarea
           value={templateContent}
           onChange={(e) => setTemplateContent(e.target.value)}
           className="border border-gray-300 dark:border-gray-600 bg-transparent rounded-md p-3 w-full mb-6 focus:ring-2 focus:ring-primary focus:outline-none text-gray-800 dark:text-white"
           placeholder="Template"
+          rows={5} // You can adjust the number of rows for the height of the textarea
         />
+
 
         {/* Button Section */}
         <div className="flex justify-between">
