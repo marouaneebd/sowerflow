@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
 
         console.log("ok 2")
 
-        console.log(templateSnap)
-        console.log(profileSnap)
+        console.log(templateSnap.data())
+        console.log(profileSnap.data())
 
 
         if (profileSnap.exists() && templateSnap.exists()) {
