@@ -42,9 +42,9 @@ export async function POST(req: NextRequest) {
 
             if (profileData?.isActive && remainingCredits > 0) {
                 let message = templateData?.templateContent;
-                message.replaceAll('[firstname]', targetFirstName);
-                message.replaceAll('[lastname]', targetLastName);
-                message.replaceAll('[company]', targetCompany);
+                message = message.replaceAll('[firstname]', targetFirstName);
+                message = message.replaceAll('[lastname]', targetLastName);
+                message = message.replaceAll('[company]', targetCompany);
 
                 if (reinitializeCredits) {
                     await updateDoc(profileRef, {
