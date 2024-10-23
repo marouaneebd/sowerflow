@@ -12,6 +12,8 @@ export async function POST(req: NextRequest) {
         const session = await getServerSession({ req, ...authOptions });
         const uid = session?.user?.uid
 
+        console.log(templateId, targetFirstName)
+
         if (!uid) {
             return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
         }
@@ -27,6 +29,7 @@ export async function POST(req: NextRequest) {
         const profileSnap = await getDoc(profileRef);
 
         if (profileSnap.exists() && templateSnap.exists()) {
+            console.log("profile and template found")
             const profileData = profileSnap.data();
             const templateData = templateSnap.data();
 
