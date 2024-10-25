@@ -10,8 +10,6 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession({ req, ...authOptions });
     const uid = session?.user?.uid;
-    console.log(session)
-
 
     if (!uid) {
       return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
@@ -26,8 +24,6 @@ export async function GET(req: NextRequest) {
 
       // Get the 'plan' field value and check if it's valid
       const plan = profileData?.plan;
-      const validPlans = ['assisted', 'augmented', 'automated'];
-
       const currentDate = new Date(new Date().setHours(0, 0, 0, 0));
       const dateCreditsRefreshed = profileData?.dateCreditsRefreshed;
 
@@ -36,8 +32,11 @@ export async function GET(req: NextRequest) {
 
       const remainingCredits = (plan === "assisted" ? 10 : plan === "augmented" ? 15 : plan === "automated" ? 20 : 0) - creditsUsed;
 
-      if (validPlans.includes(plan)) {
-        return NextResponse.json({ plan, remainingCredits });
+      const profile = profileData;
+      profile.remainingCredits = remainingCredits
+
+      if (profile) {
+        return NextResponse.json(profile);
       } else {
         return NextResponse.json({ error: 'Invalid plan value' }, { status: 400 });
       }
