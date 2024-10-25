@@ -12,9 +12,6 @@ export async function POST(req: NextRequest) {
         const session = await getServerSession({ req, ...authOptions });
         const uid = session?.user?.uid
 
-        console.log(uid)
-        console.log(templateId, targetFirstName)
-
         if (!uid) {
             return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
         }
@@ -29,11 +26,7 @@ export async function POST(req: NextRequest) {
         const profileRef = doc(db, 'profiles', uid);
         const profileSnap = await getDoc(profileRef);
 
-        console.log(templateSnap)
-        console.log(profileSnap)
-
         if (profileSnap.exists() && templateSnap.exists()) {
-            console.log("Check 1 ok")
             const profileData = profileSnap.data();
             const templateData = templateSnap.data();
 
@@ -67,10 +60,9 @@ export async function POST(req: NextRequest) {
                     });
                 }
                 
-                console.log(message)
                 return NextResponse.json({ message });
             } else {
-                return NextResponse.json({ error: 'Plan not active' }, { status: 400 });
+                return NextResponse.json({ error: 'Plan not active or no remaining credits' }, { status: 400 });
             }
         } else {
             return NextResponse.json({ error: 'Profile or template not found' }, { status: 404 });

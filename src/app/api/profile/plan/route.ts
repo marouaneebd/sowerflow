@@ -22,14 +22,22 @@ export async function GET(req: NextRequest) {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      const data = docSnap.data();
+      const profileData = docSnap.data();
 
       // Get the 'plan' field value and check if it's valid
-      const plan = data?.plan;
+      const plan = profileData?.plan;
       const validPlans = ['assisted', 'augmented', 'automated'];
 
+      const currentDate = new Date(new Date().setHours(0, 0, 0, 0));
+      const dateCreditsRefreshed = profileData?.dateCreditsRefreshed;
+
+      const reinitializeCredits = currentDate === dateCreditsRefreshed;
+      const creditsUsed = reinitializeCredits ? 0 : profileData?.creditsUsed;
+
+      const remainingCredits = (plan === "assisted" ? 10 : plan === "augmented" ? 15 : plan === "automated" ? 20 : 0) - creditsUsed;
+
       if (validPlans.includes(plan)) {
-        return NextResponse.json({ plan });
+        return NextResponse.json({ plan, remainingCredits });
       } else {
         return NextResponse.json({ error: 'Invalid plan value' }, { status: 400 });
       }
