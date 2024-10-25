@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession({ req, ...authOptions });
     const uid = session?.user?.uid;
+    const email = session?.user?.email;
 
     if (!uid) {
       return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
@@ -33,6 +34,8 @@ export async function GET(req: NextRequest) {
       const remainingCredits = (plan === "assisted" ? 10 : plan === "augmented" ? 15 : plan === "automated" ? 20 : 0) - creditsUsed;
 
       const profile = profileData;
+      
+      profile.email = email;
       profile.remainingCredits = remainingCredits
 
       if (profile) {
