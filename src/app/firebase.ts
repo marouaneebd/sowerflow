@@ -20,22 +20,24 @@ const templates = [
   }
 ]
 
-async function initializeTemplates() {
+async function initializeTemplates(uid:string) {
   for (const template of templates) {
     try {
-      const response = await fetch('/api/templates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: template.title,
-          description: template.description,
-          templateContent: template.templateContent
-        }),
+      // Generate a timestamp to use as the document ID (key)
+      const timestamp = new Date().getTime().toString();
+
+      // Create a reference to the new template document under the user's collection
+      const docRef = doc(db, 'templates', `${uid}-${timestamp}`);
+
+      // Set the new template object
+      await setDoc(docRef, {
+        uid: uid,
+        title: template.title,
+        description: template.description,
+        templateContent: template.templateContent,
+        createdAt: timestamp,
+        updatedAt: timestamp
       });
-  
-      if (!response.ok) {
-        throw new Error(`Failed to ${template ? 'update' : 'create'} template`);
-      }
     } catch (error) {
       console.error('Error saving template:', error);
     }
@@ -72,7 +74,7 @@ export async function initializeProfile(stripeCustomerId: string, uid: string): 
   try {
     const db = getFirestore();
     const docRef = doc(db, "profiles", uid); // Reference to the document in the 'profiles' collection
-    
+
     // Get the current document
     const docSnap = await getDoc(docRef);
 
@@ -82,8 +84,8 @@ export async function initializeProfile(stripeCustomerId: string, uid: string): 
         creditsUsed: 0,
         dateCreditsRefreshed: new Date(new Date().setHours(0, 0, 0, 0))
       });
-      await initializeTemplates();
-      
+      await initializeTemplates(uid);
+
     }
     console.log("Document successfully written!");
   } catch (error) {
