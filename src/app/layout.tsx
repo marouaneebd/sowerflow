@@ -9,12 +9,12 @@ export default async function RootLayout({
 }) {
 
   return (
-    <html lang="en" className="h-full bg-orange-500">
+    <html lang="en" className="h-full bg-gray-50">
       <body className="h-full">
       <SessionProvider>
       <div className="h-full flex">
       <Sidebar></Sidebar>
-      <div className="flex-grow p-8 bg-gray-50">
+      <div className="flex-grow bg-gray-50">
         {children}
       </div>
       </div>

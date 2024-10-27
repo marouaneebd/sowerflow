@@ -6,17 +6,17 @@ const templates = [
   {
     "title": "Product Manager internship",
     "description": "A message template to ask for opened positions as a Product Manager intern.",
-    "templateContent": "Hi [name],\nI'm very interested in product management roles and was excited to see your background. I'd love to connect and ask for advice as I look for an internship in the field."
+    "templateContent": "Hi [firstname],\nI'm very interested in product management roles and was excited to see your background. I'd love to connect and ask for advice as I look for an internship in the field."
   },
   {
     "title": "M&A internship",
     "description": "A message template to ask for opened positions as a Megers & Acquisitions intern.",
-    "templateContent": "Hi [name],\nI'm currently exploring opportunities in mergers and acquisitions, and I was really impressed by your experience in the field. I'd love to connect and ask for advice."
+    "templateContent": "Hi [firstname],\nI'm currently exploring opportunities in mergers and acquisitions, and I was really impressed by your experience in the field. I'd love to connect and ask for advice."
   },
   {
     "title": "Sales Trader internship",
     "description": "A message template to ask for opened positions as a Sales Trader intern.",
-    "templateContent": "Hi [name],\nI'm highly interested in trading and was excited to see your background in the industry. I'd love to connect and seek your guidance as I look for an internship in trading."
+    "templateContent": "Hi [firstname],\nI'm highly interested in trading and was excited to see your background in the industry. I'd love to connect and seek your guidance as I look for an internship in trading."
   }
 ]
 
