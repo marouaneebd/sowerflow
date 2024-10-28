@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     if (!customerId) {
       return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
     }
+    
 
     // Make sure NEXT_PUBLIC_URL is fully qualified with http:// or https://
     const returnUrl = `${process.env.NEXT_PUBLIC_DOMAIN_URL}/billing`; // Full URL
