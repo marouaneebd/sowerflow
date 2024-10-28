@@ -33,13 +33,11 @@ export default function Home() {
 
 
   return (
-    <div className="p-6">
       <iframe
-        src="https://my-autobot.webflow.io/guide"
+        src="https://www.my-autobot.com/guide"
         className="w-full h-full"
         style={{ border: 'none' }}
         title="Full Screen iFrame"
       ></iframe>
-    </div>
   );
 }
