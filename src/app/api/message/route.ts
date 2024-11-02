@@ -23,10 +23,14 @@ export async function POST(req: NextRequest) {
         const templateRef = doc(db, 'templates', templateId);
         const templateSnap = await getDoc(templateRef);
 
+        console.log('ok 1')
+
         const profileRef = doc(db, 'profiles', uid);
         const profileSnap = await getDoc(profileRef);
 
         if (profileSnap.exists() && templateSnap.exists()) {
+            console.log('ok 2')
+
             const profileData = profileSnap.data();
             const templateData = templateSnap.data();
 
@@ -35,12 +39,16 @@ export async function POST(req: NextRequest) {
             const currentDate = new Date(new Date().setHours(0, 0, 0, 0));
             const dateCreditsRefreshed = profileData?.dateCreditsRefreshed;
 
+            console.log('ok 3')
+
             const reinitializeCredits = currentDate === dateCreditsRefreshed;
             const creditsUsed = reinitializeCredits ? 0 : profileData?.creditsUsed;
 
             const remainingCredits = (plan === "assisted" ? 10 : plan === "augmented" ? 15 : plan === "automated" ? 20 : 0) - creditsUsed;
 
             if (profileData?.isActive && remainingCredits > 0) {
+                console.log('ok 4')
+
                 let message = templateData?.templateContent;
                 message = message.replaceAll('[firstname]', targetFirstName);
                 message = message.replaceAll('[lastname]', targetLastName);
@@ -59,6 +67,9 @@ export async function POST(req: NextRequest) {
                         updatedAt: new Date().getTime().toString()
                     });
                 }
+
+                console.log('ok 5')
+
                 
                 return NextResponse.json({ message });
             } else {
