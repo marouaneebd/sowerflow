@@ -42,12 +42,19 @@ export async function POST(req: NextRequest) {
             console.log('ok 3')
 
             const reinitializeCredits = currentDate === dateCreditsRefreshed;
+            console.log('ok 4')
+
             const creditsUsed = reinitializeCredits ? 0 : profileData?.creditsUsed;
+            console.log('ok 5')
+
 
             const remainingCredits = (plan === "assisted" ? 10 : plan === "augmented" ? 15 : plan === "automated" ? 20 : 0) - creditsUsed;
+            console.log('ok 5')
+
+            console.log(profileData)
+
 
             if (profileData?.isActive && remainingCredits > 0) {
-                console.log('ok 4')
 
                 let message = templateData?.templateContent;
                 message = message.replaceAll('[firstname]', targetFirstName);
@@ -67,9 +74,6 @@ export async function POST(req: NextRequest) {
                         updatedAt: new Date().getTime().toString()
                     });
                 }
-
-                console.log('ok 5')
-
                 
                 return NextResponse.json({ message });
             } else {
