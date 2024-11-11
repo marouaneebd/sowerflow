@@ -73,6 +73,8 @@ export default function ForgotPassword() {
               </div>
             </div>
 
+            {message && <p className="mt-2 text-center text-sm text-red-500">{message}</p>}
+
             <div className="flex justify-center">
               <BasicButton
                 disabled={!email}
