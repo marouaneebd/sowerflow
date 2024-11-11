@@ -46,7 +46,7 @@ const BasicButton: React.FC<BasicButtonProps> = ({ onClick, buttonText, type, ic
       }`}
       disabled={loading || disabled}
       style={{
-        width: '150px',
+        minWidth: '150px',
         height: '40px',
         backgroundColor: mapColors[type],  // TypeScript knows that `type` is either 'general' or 'delete'
         borderTopLeftRadius: '15px',

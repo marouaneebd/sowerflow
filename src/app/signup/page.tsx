@@ -1,8 +1,10 @@
 'use client';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { useState } from 'react';
+import { signIn, useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
 import { useRouter } from 'next/navigation';
+import BasicButton from '@/components/general/BasicButton';
 
 
 export default function Signup() {
@@ -11,6 +13,14 @@ export default function Signup() {
   const [passwordAgain, setPasswordAgain] = useState('');
   const [message, setMessage] = useState('');
   const router = useRouter();
+
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      router.push('/home');
+    }
+  }, [session, router]);
 
 
   const signup = async () => {
@@ -21,6 +31,7 @@ export default function Signup() {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      await signIn('credentials', { email, password, redirect: true, callbackUrl: '/' });
       setMessage("Signup successful! You can now log in.");
     } catch (error) {
       console.log(error);
@@ -100,14 +111,13 @@ export default function Signup() {
 
             {message && <p className="mt-2 text-center text-sm text-red-500">{message}</p>}
 
-            <div>
-              <button
+            <div className="flex justify-center">
+              <BasicButton
                 disabled={(!email || !password || !passwordAgain) || (password !== passwordAgain)}
                 onClick={signup}
-                className="w-full flex justify-center bg-[#ff6b2b] text-white py-2 px-4 rounded-lg hover:bg-[#e66026] transition disabled:opacity-50"
-              >
-                Sign Up
-              </button>
+                buttonText="Sign Up"
+                type="general"
+              />
             </div>
           </div>
 

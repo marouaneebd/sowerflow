@@ -3,10 +3,13 @@ import { useState, useEffect } from 'react';
 import { sendPasswordReset } from '../firebase';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import BasicButton from '@/components/general/BasicButton';
+
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [message, setMessage] = useState('');
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -24,6 +27,16 @@ export default function ForgotPassword() {
 
   // Prevent rendering the component until hydration is complete
   if (!mounted) return null;
+
+  const reset = async () => {
+    try {
+      await sendPasswordReset(email)
+      setMessage("");
+    } catch (error) {
+      console.log(error);
+      setMessage("Password reset failed. Please try again.");
+    }
+  };
 
   return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -60,15 +73,15 @@ export default function ForgotPassword() {
               </div>
             </div>
 
-            <div>
-              <button
-                onClick={() => sendPasswordReset(email)}
+            <div className="flex justify-center">
+              <BasicButton
                 disabled={!email}
-                className="w-full flex justify-center bg-[#ff6b2b] text-white py-2 px-4 rounded-lg hover:bg-[#e66026] transition disabled:opacity-50"
-              >
-                Send Reset Email
-              </button>
+                onClick={reset}
+                buttonText="Send Reset Email"
+                type="general"
+              />
             </div>
+
           </div>
 
           <p className="mt-6 text-center text-sm text-gray-500">

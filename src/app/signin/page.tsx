@@ -1,12 +1,14 @@
 'use client';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import BasicButton from '@/components/general/BasicButton';
+
 
 export default function Signin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -16,6 +18,16 @@ export default function Signin() {
       router.push('/home');
     }
   }, [session, router]);
+
+  const signin = async () => {
+    try {
+      await signIn('credentials', { email, password, redirect: true, callbackUrl: '/' });
+      setMessage("");
+    } catch (error) {
+      console.log(error);
+      setMessage("Signin failed. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -77,14 +89,15 @@ export default function Signin() {
               </div>
             </div>
 
-            <div>
-              <button
-                onClick={() => signIn('credentials', { email, password, redirect: true, callbackUrl: '/' })}
+            {message && <p className="mt-2 text-center text-sm text-red-500">{message}</p>}
+
+            <div className="flex justify-center">
+              <BasicButton
                 disabled={!email || !password}
-                className="w-full flex justify-center bg-[#ff6b2b] text-white py-2 px-4 rounded-lg hover:bg-[#e66026] transition disabled:opacity-50"
-              >
-                Sign in
-              </button>
+                onClick={signin}
+                buttonText="Sign In"
+                type="general"
+              />
             </div>
           </div>
 
