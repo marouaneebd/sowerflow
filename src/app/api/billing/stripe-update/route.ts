@@ -22,6 +22,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Webhook Error: ${JSON.stringify(err)}` }, { status: 400 });
   }
 
+
+  console.log(event);
+
   const subscription = event.data.object as Stripe.Subscription;
   const customerId = subscription.customer as string;
   const priceId = subscription.items.data[0].price.id;
@@ -29,7 +32,6 @@ export async function POST(req: NextRequest) {
   const isTrial = subscription.status === 'trialing'; // Trial status
   const isActive = subscription.status === 'active' || subscription.status === 'trialing'; // Active status
   const subscriptionEndDate = new Date(subscription.current_period_end * 1000); // Subscription end date (timestamp to Date object)
-
   if (!plan) {
     return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
   }
