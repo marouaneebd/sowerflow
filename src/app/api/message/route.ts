@@ -137,13 +137,13 @@ export async function POST(req: NextRequest) {
                 { status: 404 }
             );
         }
-    } catch (error: any) {
+    } catch (error) {
         console.error('Error creating message:', error);
 
         // Store the error in "messages" collection
         await storeMessageInFirebase({
             uid: undefined, // or pass a known uid if available
-            error: error?.message || 'Failed to create message',
+            error: JSON.stringify(error) || 'Failed to create message',
         });
 
         return NextResponse.json(
