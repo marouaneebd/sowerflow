@@ -34,7 +34,7 @@ export default function Home() {
 
   return (
       <iframe
-        src="https://www.my-autobot.com/guide"
+        src="https://www.sowerflow.com/guide"
         className="w-full h-full"
         style={{ border: 'none' }}
         title="Full Screen iFrame"
