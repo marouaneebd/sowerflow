@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import EmailStep from './steps/EmailStep'
 import PhoneStep from './steps/PhoneStep'
 import TypeStep from './steps/TypeStep'

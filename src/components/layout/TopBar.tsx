@@ -1,6 +1,6 @@
 'use client';
 import { useSession } from 'next-auth/react';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function TopBar() {
