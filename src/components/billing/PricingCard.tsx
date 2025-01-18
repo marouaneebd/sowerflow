@@ -2,7 +2,7 @@
 import React from 'react';
 import { useSession } from 'next-auth/react';
 import { loadStripe } from '@stripe/stripe-js';
-import BasicButton from '@/components/general/BasicButton';
+import { GradientButton } from '@/components/signup_form/GradientButton';
 
 
 // Initialize Stripe with your public key
@@ -136,9 +136,10 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
   }
   return (
     <div
-      className={`max-w-sm bg-white rounded-3xl shadow-md p-6 m-6 hover:shadow-lg transition-shadow
-        border ${selected ? 'border-1 border-orange-500' : 'border border-gray-200'}
-      `} style={selected ? { boxShadow: '0 0 3px #ff952b' } : {}}
+      className={`max-w-sm bg-white rounded-2xl p-6 m-6 
+        ${selected ? 'border border-gray-300 shadow-md hover:shadow-lg' : ''}
+        transition-shadow`}
+      style={selected ? { boxShadow: '0 0 3px #e5e7eb' } : {}}
     >      {/* Badge */}
       <div className={`${!mapping?.display_hint?.[plan] ? 'hidden' : ''} text-orange-500 font-semibold text-sm mb-2 flex items-center`}>
         <span>✨</span>
@@ -151,7 +152,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
       </div>
 
       {/* Title */}
-      <h2 className="text-2xl font-bold text-center mb-2">{mapping?.title?.[plan]}</h2>
+      <h2 className="text-2xl text-center mb-2">{mapping?.title?.[plan]}</h2>
 
       {/* Price */}
       <p className="text-3xl text-center font-semibold text-gray-900 mb-4">
@@ -188,12 +189,13 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
 
       {/* Sign up button */}
       <div className="flex justify-center">
-        <BasicButton 
+        <GradientButton 
           onClick={selected ? handleBillingPortal : handleCheckout}
-          buttonText={mapping?.cta_text?.[plan]}
-          type="general"
-        />
-        </div>
+          className="w-full"
+        >
+          {mapping?.cta_text?.[plan]}
+        </GradientButton>
+      </div>
     </div>
   );
 };

@@ -3,13 +3,19 @@ import { useState, useEffect } from 'react';
 import { sendPasswordReset } from '../firebase';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import BasicButton from '@/components/general/BasicButton';
-
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { GradientButton } from '@/components/signup_form/GradientButton';
+import { Transition } from '@/components/signup_form/Transition';
+import Link from 'next/link';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [mounted, setMounted] = useState(false);
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -28,71 +34,69 @@ export default function ForgotPassword() {
   // Prevent rendering the component until hydration is complete
   if (!mounted) return null;
 
-  const reset = async () => {
+  const reset = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      await sendPasswordReset(email)
+      setIsSubmitting(true);
+      await sendPasswordReset(email);
       setMessage("");
+      // Optionally redirect to signin page after successful reset
+      router.push('/signin');
     } catch (error) {
       console.log(error);
-      setMessage("Password reset failed. Please try again.");
+      setMessage("La réinitialisation du mot de passe a échoué. Veuillez réessayer.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="bg-white rounded-lg shadow-lg p-10 max-w-lg w-full">
-          <div className="flex flex-col items-center">
-            <img
-              className="h-16 w-16 mb-6"
-              src="/images/fire.png"
-              alt="Logo"
-            />
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">
-              Forgot Password
-            </h2>
-            <p className="text-gray-500 mb-6 text-center">
-              Enter your email address to reset your password
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:border-[#ff6b2b] focus:ring-1 focus:ring-[#ff6b2b]"
-                />
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-white">
+      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text">
+        Mot de passe oublié
+      </h1>
+      <Card className="w-full max-w-lg mx-auto">
+        <CardContent className="pt-6">
+        </CardContent>
+        <Transition key="forgot-password">
+          <form onSubmit={reset}>
+            <CardContent className="min-h-[200px]">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                {message && <p className="text-red-500 text-sm text-center">{message}</p>}
               </div>
-            </div>
-
-            {message && <p className="mt-2 text-center text-sm text-red-500">{message}</p>}
-
-            <div className="flex justify-center">
-              <BasicButton
-                disabled={!email}
-                onClick={reset}
-                buttonText="Send Reset Email"
-                type="general"
-              />
-            </div>
-
-          </div>
-
-          <p className="mt-6 text-center text-sm text-gray-500">
-            Remembered your password?{' '}
-            <button onClick={() => router.push('/signin')} className="text-[#ff6b2b] hover:text-[#e66026] font-semibold">
-              Sign In
-            </button>
-          </p>
-        </div>
-      </div>
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <div className="w-full">
+                <GradientButton 
+                  type="submit" 
+                  disabled={!email} 
+                  isLoading={isSubmitting} 
+                  className="w-full"
+                >
+                  Envoyer le lien de réinitialisation
+                </GradientButton>
+              </div>
+              <div className="w-full">
+                <Link href="/signin">
+                  <Button variant="outline" className="w-full">
+                    Retour à la connexion
+                  </Button>
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
+        </Transition>
+      </Card>
+    </main>
   );
 }

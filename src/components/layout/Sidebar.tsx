@@ -1,6 +1,6 @@
 'use client';
 import { ChevronLeft, ChevronRight, CircleUser } from 'lucide-react';
-import { CreditCard, HomeIcon, LogOut, Mail, LayoutTemplate } from 'lucide-react';
+import { CreditCard, HomeIcon, LogOut, Mail } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -16,8 +16,6 @@ export default function Sidebar() {
   // Determine active item based on the current path
   const activeItem = pathname?.includes('billing') 
     ? "Billing" 
-    : pathname?.includes('templates') 
-    ? "Templates" 
     : pathname?.includes('contact') 
     ? "Contact" 
     : "Home";
@@ -31,7 +29,6 @@ export default function Sidebar() {
     const pageMapping: Record<string, string> = {
       "Home": "/home",
       "Billing": "/billing",
-      "Templates": "/templates",
       "Contact": "/contact",
     };
     router.push(pageMapping[item]);
@@ -88,7 +85,6 @@ export default function Sidebar() {
         </div>
         <ul className="flex flex-col flex-1 px-3">
           <SidebarItem icon={<HomeIcon size={20} />} name="Home" />
-          <SidebarItem icon={<LayoutTemplate size={20} />} name="Templates" />
           <SidebarItem icon={<CreditCard size={20} />} name="Billing" />
           <SidebarItem icon={<Mail size={20} />} name="Contact" />
           <SidebarItem icon={<LogOut size={20} />} name="Logout" />

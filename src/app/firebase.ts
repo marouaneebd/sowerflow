@@ -2,49 +2,6 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, setPersistence, browserLocalPersistence, sendPasswordResetEmail } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
-const templates = [
-  {
-    "title": "Product Manager internship",
-    "description": "A message template to ask for opened positions as a Product Manager intern.",
-    "templateContent": "Hi [firstname],\nI'm very interested in product management roles and was excited to see your background. I'd love to connect and ask for advice as I look for an internship in the field."
-  },
-  {
-    "title": "M&A internship",
-    "description": "A message template to ask for opened positions as a Megers & Acquisitions intern.",
-    "templateContent": "Hi [firstname],\nI'm currently exploring opportunities in mergers and acquisitions, and I was really impressed by your experience in the field. I'd love to connect and ask for advice."
-  },
-  {
-    "title": "Sales Trader internship",
-    "description": "A message template to ask for opened positions as a Sales Trader intern.",
-    "templateContent": "Hi [firstname],\nI'm highly interested in trading and was excited to see your background in the industry. I'd love to connect and seek your guidance as I look for an internship in trading."
-  }
-]
-
-async function initializeTemplates(uid:string) {
-  for (const template of templates) {
-    try {
-      // Generate a timestamp to use as the document ID (key)
-      const timestamp = new Date().getTime().toString();
-
-      // Create a reference to the new template document under the user's collection
-      const docRef = doc(db, 'templates', `${uid}-${timestamp}`);
-
-      // Set the new template object
-      await setDoc(docRef, {
-        uid: uid,
-        title: template.title,
-        description: template.description,
-        templateContent: template.templateContent,
-        createdAt: timestamp,
-        updatedAt: timestamp
-      });
-    } catch (error) {
-      console.error('Error saving template:', error);
-    }
-  }
-}
-
-
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -85,8 +42,6 @@ export async function initializeProfile(stripeCustomerId: string, uid: string): 
         creditsUsed: 0,
         dateCreditsRefreshed: new Date(new Date().setHours(0, 0, 0, 0))
       });
-      await initializeTemplates(uid);
-
     }
     console.log("Document successfully written!");
   } catch (error) {
