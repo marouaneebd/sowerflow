@@ -13,7 +13,7 @@ export default function InstagramStep({ instagram, updateFormData }: InstagramSt
   const validateInstagram = (value: string) => {
     const regex = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/
     if (!regex.test(value)) {
-      setError('Nom d\'utilisateur Instagram invalide')
+      setError('Nom d&apos;utilisateur Instagram invalide')
     } else {
       setError('')
     }
@@ -23,7 +23,7 @@ export default function InstagramStep({ instagram, updateFormData }: InstagramSt
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="instagram">Comment s'appelle ta page Instagram ?</Label>
+        <Label htmlFor="instagram">Comment s&apos;appelle ta page Instagram ?</Label>
         <Input
           id="instagram"
           type="text"

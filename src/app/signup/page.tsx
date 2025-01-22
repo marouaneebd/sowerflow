@@ -112,7 +112,7 @@ export default function Signup() {
             <CardFooter className="flex flex-col gap-2">
               <div className="w-full">
                 <GradientButton type="submit" disabled={!isStepValid()} isLoading={isSubmitting} className="w-full">
-                  S'inscrire
+                  S&apos;inscrire
                 </GradientButton>
               </div>
               <div className="w-full">

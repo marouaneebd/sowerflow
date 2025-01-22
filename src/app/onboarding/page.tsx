@@ -6,7 +6,7 @@ import MultiStepForm from '@/components/signup_form/MultiStepForm';
 
 export default function Onboarding() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
