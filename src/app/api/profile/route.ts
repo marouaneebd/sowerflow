@@ -1,53 +1,88 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/app/firebase';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { getServerSession } from 'next-auth/next';
 
+// Helper function to verify authentication
+async function verifyAuth(req: NextRequest) {
+  const session = await getServerSession({ req, ...authOptions });
+  const uid = session?.user?.uid;
+  
+  if (!uid) {
+    throw new Error('Unauthorized');
+  }
+  
+  return { uid, email: session?.user?.email };
+}
 
-// GET method for fetching the plan field from a user's profile
+// GET method for fetching the profile
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession({ req, ...authOptions });
-    const uid = session?.user?.uid;
-    const email = session?.user?.email;
+    const { uid, email } = await verifyAuth(req);
+    const docRef = doc(db, 'profiles', uid);
+    const docSnap = await getDoc(docRef);
 
-    if (!uid) {
-      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+    if (!docSnap.exists()) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
+    const profileData = docSnap.data();
+
+    return NextResponse.json({
+      ...profileData,
+      email
+    });
+
+  } catch (error) {
+    console.error('Error in GET /api/profile:', error);
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+    }
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// POST method to handle form submission
+export async function POST(req: NextRequest) {
+  try {
+    const { uid } = await verifyAuth(req);
+    
+    const formData = await req.json();
+    
+    // Validate form data
+    if (!formData || typeof formData !== 'object') {
+      return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
+    }
 
     const docRef = doc(db, 'profiles', uid);
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      const profileData = docSnap.data();
+    const timestamp = new Date().toISOString();
+    const profileUpdate = {
+      onboardingForm: formData,
+      lastUpdated: timestamp,
+      ...((!docSnap.exists()) && { 
+        createdAt: timestamp,
+        plan: 'free' // Set default plan for new profiles
+      })
+    };
 
-      // Get the 'plan' field value and check if it's valid
-      const plan = profileData?.plan;
-      const currentDate = new Date(new Date().setHours(0, 0, 0, 0));
-      const dateCreditsRefreshed = profileData?.dateCreditsRefreshed;
+    await (docSnap.exists() 
+      ? updateDoc(docRef, profileUpdate)
+      : setDoc(docRef, profileUpdate)
+    );
 
-      const reinitializeCredits = currentDate === dateCreditsRefreshed;
-      const creditsUsed = reinitializeCredits ? 0 : profileData?.creditsUsed;
+    return NextResponse.json({ 
+      message: `Profile ${docSnap.exists() ? 'updated' : 'created'} successfully`,
+      timestamp 
+    });
 
-      const remainingCredits = (plan === "assisted" ? 10 : plan === "augmented" ? 15 : plan === "automated" ? 20 : 0) - creditsUsed;
-
-      const profile = profileData;
-      
-      profile.email = email;
-      profile.remainingCredits = remainingCredits
-
-      if (profile) {
-        return NextResponse.json(profile);
-      } else {
-        return NextResponse.json({ error: 'Invalid plan value' }, { status: 400 });
-      }
-    } else {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    }
   } catch (error) {
-    console.error('Error fetching profile plan:', error);
-    return NextResponse.json({ error: 'Failed to fetch plan' }, { status: 500 });
+    console.error('Error in POST /api/profile:', error);
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+    }
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

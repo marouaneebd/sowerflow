@@ -1,5 +1,5 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { loadStripe } from '@stripe/stripe-js';
 import { GradientButton } from '@/components/signup_form/GradientButton';
@@ -16,6 +16,7 @@ interface PricingCardProps {
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { data: session } = useSession(); // Get current user session
 
   // Function to handle the checkout process
@@ -26,6 +27,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
     }
 
     try {
+      setIsSubmitting(true)
       const response = await fetch('/api/billing/checkout', {
         method: 'POST',
         headers: {
@@ -50,6 +52,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
     } catch (error) {
       console.error('Error creating checkout session:', error);
     }
+    setIsSubmitting(false)
   };
 
   const handleBillingPortal = async () => {
@@ -59,6 +62,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
     }
 
     try {
+      setIsSubmitting(true)
       const response = await fetch('/api/billing/portal', {
         method: 'POST',
         headers: {
@@ -79,6 +83,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
       console.error('Error accessing billing portal:', error);
       alert('An error occurred. Please try again.');
     }
+    setIsSubmitting(false)
   };
 
   const mapping = {
@@ -192,6 +197,7 @@ const PricingCard: React.FC<PricingCardProps> = ({ plan, selected }) => {
         <GradientButton 
           onClick={selected ? handleBillingPortal : handleCheckout}
           className="w-full"
+          isLoading={isSubmitting}
         >
           {mapping?.cta_text?.[plan]}
         </GradientButton>

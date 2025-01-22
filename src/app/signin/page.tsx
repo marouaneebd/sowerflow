@@ -65,7 +65,7 @@ export default function Signin() {
         </CardContent>
         <Transition key="signin">
           <form onSubmit={handleSubmit}>
-            <CardContent className="min-h-[300px]">
+            <CardContent className="min-h-[200px]">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -96,7 +96,7 @@ export default function Signin() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4">
+            <CardFooter className="flex flex-col gap-2">
               <div className="w-full">
                 <GradientButton type="submit" disabled={!isStepValid()} isLoading={isSubmitting} className="w-full">
                   Se connecter

@@ -2,8 +2,9 @@
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import MultiStepForm from '@/components/signup_form/MultiStepForm';
 
-export default function Home() {
+export default function Onboarding() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
@@ -12,15 +13,12 @@ export default function Home() {
     if (status === 'unauthenticated') {
       router.push('/signin');
     } else if (status === 'authenticated') {
-      // Check if user has completed the form
+      // Check if user has already completed the form
       fetch('/api/profile')
         .then(res => res.json())
         .then(data => {
-          if (!data.onboardingForm) {
-            router.push('/onboarding');
-          }
-          else {
-            router.push('/demo-chat');
+          if (data.onboardingForm) {
+            router.push('/'); // Redirect to home/dashboard if form is completed
           }
           setIsLoading(false);
         })
@@ -29,7 +27,7 @@ export default function Home() {
           setIsLoading(false);
         });
     }
-  }, [status, router, session]);
+  }, [status, router]);
 
   if (isLoading) {
     return (
@@ -46,13 +44,12 @@ export default function Home() {
     );
   }
 
-
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-white">
       <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text">
-        Welcome to your Dashboard
+        Construisons ensemble votre stratégie de setting
       </h1>
-      {/* Add your dashboard content here */}
+      <MultiStepForm />
     </main>
   )
-}
+} 

@@ -76,9 +76,14 @@ export default function Sidebar() {
 
   return (
     <aside className="h-screen">
-      <nav className="h-full flex flex-col bg-gray-900 shadow-sm">
+      <nav className="h-full flex flex-col bg-[#000000] shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
-          <img src="/images/fire.png" className={`overflow-hidden transition-all ${expanded ? "w-10" : "w-0"}`} alt="" />
+          <div className="flex items-center gap-2">
+            <img src="/images/fire.png" className={`overflow-hidden transition-all ${expanded ? "w-10" : "w-0"}`} alt="" />
+            <h1 className={`overflow-hidden transition-all ${expanded ? "w-32" : "w-0"} font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-xl`}>
+              SowerFlow
+            </h1>
+          </div>
           <button onClick={() => setExpanded((curr) => !curr)} className="p-1.5 rounded-lg bg-gray-850 hover:bg-gray-600">
             {expanded ? <ChevronLeft style={{ color: 'white' }} /> : <ChevronRight style={{ color: 'white' }} />}
           </button>

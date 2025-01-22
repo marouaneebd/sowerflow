@@ -73,14 +73,14 @@ export default function TopBar() {
                             <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm.75 12h-1.5v-1.5h1.5V14zm0-3h-1.5V6h1.5v5z" />
                         </svg>
                         <span className="text-sm font-medium ml-2">
-                            You are currently on a trial plan.
+                            Pour pouvoir lancer votre agent, veuillez activer votre compte.
                         </span>
                     </div>
                     <button
                         onClick={redirectBilling}
                         className="text-sm underline hover:text-orange-200 transition-colors duration-200"
                     >
-                        Upgrade Plan
+                        Activer mon compte
                     </button>
                     <button
                         onClick={dismissBanner}

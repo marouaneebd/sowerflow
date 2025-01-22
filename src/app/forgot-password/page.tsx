@@ -60,7 +60,7 @@ export default function ForgotPassword() {
         </CardContent>
         <Transition key="forgot-password">
           <form onSubmit={reset}>
-            <CardContent className="min-h-[200px]">
+            <CardContent className="min-h-[150px]">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -75,7 +75,7 @@ export default function ForgotPassword() {
                 {message && <p className="text-red-500 text-sm text-center">{message}</p>}
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4">
+            <CardFooter className="flex flex-col gap-2">
               <div className="w-full">
                 <GradientButton 
                   type="submit" 
