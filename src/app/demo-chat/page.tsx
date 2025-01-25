@@ -5,11 +5,14 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { unstable_noStore as noStore } from 'next/cache';
+
 
 export const maxDuration = 30
 export const dynamic = 'force-dynamic';
 
 export default function Chat() {
+  noStore()
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     onResponse: (response) => {
       console.log("Client-side response:", response)
