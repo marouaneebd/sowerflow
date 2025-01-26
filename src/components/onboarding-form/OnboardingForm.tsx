@@ -13,7 +13,6 @@ import CalendlyStep from './steps/CalendlyStep'
 import { Transition } from './Transition'
 import { ProgressBar } from './ProgressBar'
 import { GradientButton } from './GradientButton'
-import { useRouter } from 'next/navigation'
 
 type PricingItem = {
   name: string
