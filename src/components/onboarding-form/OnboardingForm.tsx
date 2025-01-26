@@ -37,7 +37,6 @@ type Props = {
 }
 
 export default function OnboardingForm({ onComplete }: Props) {
-  const router = useRouter()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<FormData>({

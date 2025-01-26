@@ -7,7 +7,7 @@ import OnboardingForm from '@/components/onboarding-form/OnboardingForm';
 
 export default function Home() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);

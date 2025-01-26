@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
@@ -50,7 +49,7 @@ export default function InstagramStep({ instagram, updateFormData }: InstagramSt
         setError('')
       }
     } catch (err) {
-      setError('Erreur lors de la connexion à Instagram')
+      setError('Erreur lors de la connexion à Instagram: ' + err)
     }
   }
 
