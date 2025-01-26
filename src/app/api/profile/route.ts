@@ -1,20 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/app/firebase';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { getServerSession } from 'next-auth/next';
-
-// Helper function to verify authentication
-async function verifyAuth(req: NextRequest) {
-  const session = await getServerSession({ req, ...authOptions });
-  const uid = session?.user?.uid;
-  
-  if (!uid) {
-    throw new Error('Unauthorized');
-  }
-  
-  return { uid, email: session?.user?.email };
-}
+import { verifyAuth } from '@/lib/auth';
 
 // GET method for fetching the profile
 export async function GET(req: NextRequest) {

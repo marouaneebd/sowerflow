@@ -7,8 +7,8 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { GradientButton } from '@/components/signup_form/GradientButton';
-import { Transition } from '@/components/signup_form/Transition';
+import { GradientButton } from '@/components/onboarding-form/GradientButton';
+import { Transition } from '@/components/onboarding-form/Transition';
 import Link from 'next/link';
 
 export default function ForgotPassword() {

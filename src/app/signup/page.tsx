@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { GradientButton } from '@/components/signup_form/GradientButton';
+import { GradientButton } from '@/components/onboarding-form/GradientButton';
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Transition } from '@/components/signup_form/Transition';
+import { Transition } from '@/components/onboarding-form/Transition';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/app/firebase';
 

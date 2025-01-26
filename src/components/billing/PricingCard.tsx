@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { loadStripe } from '@stripe/stripe-js';
-import { GradientButton } from '@/components/signup_form/GradientButton';
+import { GradientButton } from '@/components/onboarding-form/GradientButton';
 
 
 // Initialize Stripe with your public key

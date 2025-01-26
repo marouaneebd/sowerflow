@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/app/stripe'
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { getServerSession } from 'next-auth/next';
+import { verifyAuth } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
-
     const { priceId, successUrl, cancelUrl } = await req.json();
-    const session = await getServerSession({ req, ...authOptions });
-    const customerId = session?.user?.stripeCustomerId
+    const { stripeCustomerId } = await verifyAuth(req);
 
-    if (!customerId) {
-        return NextResponse.json({ error: 'Unauthorized. Please log in.' }, { status: 401 });
+    if (!stripeCustomerId) {
+        return NextResponse.json({ error: 'No Stripe customer ID found' }, { status: 400 });
     }
 
     try {
@@ -23,7 +20,7 @@ export async function POST(req: NextRequest) {
                     quantity: 1,
                 },
             ],
-            customer: customerId,
+            customer: stripeCustomerId,
             success_url: successUrl,
             cancel_url: cancelUrl,
         });

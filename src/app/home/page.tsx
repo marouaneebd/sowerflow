@@ -2,34 +2,42 @@
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import Chat from '@/components/demo-chat/Chat';
+import OnboardingForm from '@/components/onboarding-form/OnboardingForm';
 
 export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
+  const [showChat, setShowChat] = useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+
+  const checkProfileStatus = async () => {
+    try {
+      const res = await fetch('/api/profile');
+      const data = await res.json();
+      
+      if (!data.onboardingForm || data.onboardingForm.status !== 'finished') {
+        setNeedsOnboarding(true);
+        setShowChat(false);
+      } else {
+        setNeedsOnboarding(false);
+        setShowChat(true);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/signin');
     } else if (status === 'authenticated') {
-      // Check if user has completed the form
-      fetch('/api/profile')
-        .then(res => res.json())
-        .then(data => {
-          if (!data.onboardingForm) {
-            router.push('/onboarding');
-          }
-          else {
-            router.push('/demo-chat');
-          }
-          setIsLoading(false);
-        })
-        .catch(error => {
-          console.error('Error fetching profile:', error);
-          setIsLoading(false);
-        });
+      checkProfileStatus();
     }
-  }, [status, router, session]);
+  }, [status, router]);
 
   if (isLoading) {
     return (
@@ -46,13 +54,19 @@ export default function Home() {
     );
   }
 
+  if (needsOnboarding) {
+    return <OnboardingForm onComplete={checkProfileStatus} />;
+  }
+
+  if (showChat) {
+    return <Chat />;
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-white">
       <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text">
-        Welcome to your Dashboard
+        Bienvenue sur votre dashboard
       </h1>
-      {/* Add your dashboard content here */}
     </main>
-  )
+  );
 }
