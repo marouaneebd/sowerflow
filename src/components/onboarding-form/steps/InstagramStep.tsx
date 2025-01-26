@@ -1,21 +1,53 @@
 import { useState, useEffect } from 'react'
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import type { FormData } from '../OnboardingForm'
 
-type InstagramStepProps = {
+interface InstagramStepProps {
   instagram: string
-  updateFormData: (field: 'instagram', value: string) => void
+  instagramBio?: string
+  updateFormData: (field: keyof FormData, value: FormData[keyof FormData]) => Promise<void>
 }
 
-export default function InstagramStep({ instagram, updateFormData }: InstagramStepProps) {
+export default function InstagramStep({ instagram, instagramBio, updateFormData }: InstagramStepProps) {
   const [error, setError] = useState('')
   const [isConnected, setIsConnected] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Replace with your Instagram App ID and Redirect URI
   const INSTAGRAM_CLIENT_ID = process.env.NEXT_PUBLIC_INSTAGRAM_CLIENT_ID
   const REDIRECT_URI = process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI
   
   useEffect(() => {
+    // Check if user is already connected to Instagram
+    const checkInstagramConnection = async () => {
+      try {
+        const response = await fetch('/api/profile')
+        const data = await response.json()
+        
+        if (data.instagram?.username) {
+          // Check if token is expired
+          const tokenExpires = new Date(data.instagram.tokenExpires)
+          const now = new Date()
+          
+          if (tokenExpires > now) {
+            setIsConnected(true)
+            updateFormData('instagram', data.instagram.username)
+          } else {
+            // Token is expired, reset connection state
+            setIsConnected(false)
+            setError('La connexion Instagram a expiré. Veuillez vous reconnecter.')
+          }
+        }
+      } catch (err) {
+        console.error('Error checking Instagram connection:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    checkInstagramConnection()
+
     // Handle Instagram OAuth redirect
     const urlParams = new URLSearchParams(window.location.search)
     const code = urlParams.get('code')
@@ -32,7 +64,6 @@ export default function InstagramStep({ instagram, updateFormData }: InstagramSt
 
   const handleInstagramCallback = async (code: string) => {
     try {
-      // Exchange code for access token
       const response = await fetch('/api/instagram/callback', {
         method: 'POST',
         headers: {
@@ -46,6 +77,9 @@ export default function InstagramStep({ instagram, updateFormData }: InstagramSt
       if (data.username) {
         setIsConnected(true)
         updateFormData('instagram', data.username)
+        if (data.biography) {
+          updateFormData('instagramBio', data.biography)
+        }
         setError('')
       }
     } catch (err) {
@@ -55,25 +89,45 @@ export default function InstagramStep({ instagram, updateFormData }: InstagramSt
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="instagram">Connecte ton compte Instagram</Label>
-        
-        {!isConnected ? (
-          <Button 
-            onClick={handleInstagramLogin}
-            className="w-full flex items-center justify-center gap-2"
-          >
-            <InstagramIcon className="w-5 h-5" />
-            Se connecter avec Instagram
-          </Button>
+      <div>
+        {instagram ? (
+          <div className="space-y-2">
+            <p className="text-green-600">
+              ✓ Compte Instagram connecté: @{instagram}
+            </p>
+            {instagramBio && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <h3 className="text-sm font-medium mb-2">Votre bio Instagram:</h3>
+                <p className="text-sm text-gray-600">{instagramBio}</p>
+              </div>
+            )}
+          </div>
         ) : (
-          <div className="flex items-center gap-2 p-2 bg-green-50 rounded-md">
-            <span className="text-green-600">✓</span>
-            <span>Connecté en tant que @{instagram}</span>
+          <div className="space-y-2">
+            <Label htmlFor="instagram">Connecte ton compte Instagram</Label>
+            
+            {isLoading ? (
+              <div className="flex items-center justify-center p-4">
+                <span className="text-sm text-gray-500">Chargement...</span>
+              </div>
+            ) : !isConnected ? (
+              <Button 
+                onClick={handleInstagramLogin}
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <InstagramIcon className="w-5 h-5" />
+                Se connecter avec Instagram
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2 p-2 bg-green-50 rounded-md">
+                <span className="text-green-600">✓</span>
+                <span>Connecté en tant que @{instagram}</span>
+              </div>
+            )}
+            
+            {error && <p className="text-sm text-red-500">{error}</p>}
           </div>
         )}
-        
-        {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
     </div>
   )

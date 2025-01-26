@@ -7,13 +7,73 @@ const INSTAGRAM_CLIENT_ID = process.env.INSTAGRAM_CLIENT_ID
 const INSTAGRAM_CLIENT_SECRET = process.env.INSTAGRAM_CLIENT_SECRET
 const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI
 
+// Add a new function to refresh the token
+async function refreshInstagramToken(oldToken: string) {
+  try {
+    const response = await fetch(
+      `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${oldToken}`
+    )
+    const data = await response.json()
+    return {
+      access_token: data.access_token,
+      expires_in: data.expires_in
+    }
+  } catch (error) {
+    console.error('Error refreshing Instagram token:', error)
+    throw error
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // Verify user authentication
     const { uid } = await verifyAuth(request)
     const { code } = await request.json()
 
-    // Exchange code for access token
+    // Check if user already has a token that needs refresh
+    const userDocRef = doc(db, 'profiles', uid)
+    const userDoc = await getDoc(userDocRef)
+    
+    if (userDoc.exists() && userDoc.data().instagram?.accessToken) {
+      const tokenExpires = new Date(userDoc.data().instagram.tokenExpires)
+      const now = new Date()
+      
+      // If token expires in less than 24 hours, refresh it
+      if (tokenExpires < new Date(now.getTime() + 24 * 60 * 60 * 1000)) {
+        try {
+          const { access_token, expires_in } = await refreshInstagramToken(
+            userDoc.data().instagram.accessToken
+          )
+          
+          await updateDoc(userDocRef, {
+            instagram: {
+              ...userDoc.data().instagram,
+              accessToken: access_token,
+              tokenExpires: new Date(Date.now() + expires_in * 1000).toISOString(),
+              lastUpdated: new Date().toISOString()
+            }
+          })
+          
+          return NextResponse.json({
+            success: true,
+            username: userDoc.data().instagram.username,
+            userId: userDoc.data().instagram.userId,
+          })
+        } catch (error) {
+          console.error('Error refreshing token:', error)
+          // Continue with new authentication if refresh fails
+        }
+      } else {
+        // Token is still valid
+        return NextResponse.json({
+          success: true,
+          username: userDoc.data().instagram.username,
+          userId: userDoc.data().instagram.userId,
+        })
+      }
+    }
+
+    // Proceed with new authentication if no valid token exists
     const tokenResponse = await fetch('https://api.instagram.com/oauth/access_token', {
       method: 'POST',
       body: new URLSearchParams({
@@ -29,7 +89,7 @@ export async function POST(request: Request) {
 
     // Get user info
     const userResponse = await fetch(
-      `https://graph.instagram.com/me?fields=id,username&access_token=${access_token}`
+      `https://graph.instagram.com/me?fields=id,username,biography&access_token=${access_token}`
     )
 
     const userData = await userResponse.json()
@@ -42,20 +102,11 @@ export async function POST(request: Request) {
     const { access_token: longLivedToken, expires_in } = await longLivedTokenResponse.json()
 
     // Store Instagram data in user's profile
-    const userDocRef = doc(db, 'profiles', uid)
-    const userDoc = await getDoc(userDocRef)
-
-    if (!userDoc.exists()) {
-      return NextResponse.json(
-        { success: false, error: 'User profile not found' },
-        { status: 404 }
-      )
-    }
-
     await updateDoc(userDocRef, {
       instagram: {
         username: userData.username,
         userId: userData.id,
+        biography: userData.biography,
         accessToken: longLivedToken,
         tokenExpires: new Date(Date.now() + expires_in * 1000).toISOString(),
         lastUpdated: new Date().toISOString()
@@ -66,6 +117,7 @@ export async function POST(request: Request) {
       success: true,
       username: userData.username,
       userId: userData.id,
+      biography: userData.biography,
     })
   } catch (error) {
     console.error('Instagram OAuth Error:', error)

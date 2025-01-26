@@ -101,7 +101,7 @@ export default function Chat() {
 
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>Commencez à discuter avec votre nouveau setter IA</CardTitle>
@@ -122,7 +122,13 @@ export default function Chat() {
             ))}
           {isTyping && (
             <div className="text-left">
-              <span className="inline-block p-2 rounded-lg bg-gray-200 text-black">...</span>
+              <span className="inline-block p-2 rounded-lg bg-gray-200 text-black">
+                <span className="flex space-x-1">
+                  <span className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                  <span className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                  <span className="w-1.5 h-1.5 bg-gray-600 rounded-full animate-bounce"></span>
+                </span>
+              </span>
             </div>
           )}
           <div ref={messagesEndRef} />

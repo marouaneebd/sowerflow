@@ -14,13 +14,9 @@ import { Transition } from './Transition'
 import { ProgressBar } from './ProgressBar'
 import { GradientButton } from './GradientButton'
 
-type PricingItem = {
-  name: string
-  price: string
-}
-
-type FormData = {
+export type FormData = {
   instagram: string
+  instagramBio?: string
   product: string
   offer: string
   pricing: PricingItem[]
@@ -29,6 +25,11 @@ type FormData = {
   phone: string
   calendly: string
   status: 'not_started' | 'ongoing' | 'finished'
+}
+
+type PricingItem = {
+  name: string
+  price: string
 }
 
 type Props = {
@@ -74,8 +75,28 @@ export default function OnboardingForm({ onComplete }: Props) {
     }
   }
 
-  const updateFormData = (field: keyof FormData, value: FormData[keyof FormData]) => {
+  const fetchInstagramBio = async () => {
+    try {
+      const response = await fetch('/api/instagram/bio')
+      const data = await response.json()
+      
+      if (data.success) {
+        setFormData(prev => ({
+          ...prev,
+          instagramBio: data.bio
+        }))
+      }
+    } catch (error) {
+      console.error('Error fetching Instagram bio:', error)
+    }
+  }
+
+  const updateFormData = async (field: keyof FormData, value: FormData[keyof FormData]) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    
+    if (field === 'instagram' && value) {
+      await fetchInstagramBio()
+    }
   }
 
   const nextStep = () => {
@@ -121,6 +142,7 @@ export default function OnboardingForm({ onComplete }: Props) {
             case 1:
               return <InstagramStep
                 instagram={formData.instagram}
+                instagramBio={formData.instagramBio}
                 updateFormData={updateFormData}
               />
             case 2:
