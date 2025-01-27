@@ -40,12 +40,10 @@ export async function POST(request: NextRequest) {
 
   // Process the webhook event
   try {
-    const { object, entry } = body;
     
     // Log the webhook event (you can process it according to your needs)
     console.log('Webhook event:', {
-      object,
-      entry
+      body
     });
 
     // Handle different types of events based on the object and entry fields

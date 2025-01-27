@@ -57,7 +57,7 @@ export async function POST(request: Request) {
           return NextResponse.json({
             success: true,
             username: userDoc.data().instagram.username,
-            userId: userDoc.data().instagram.userId,
+            userId: userDoc.data().instagram.userId
           })
         } catch (error) {
           console.error('Error refreshing token:', error)
