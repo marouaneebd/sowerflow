@@ -42,11 +42,11 @@ export async function POST(request: NextRequest) {
   // Process the webhook event
   try {
     // Parse the JSON after verification
-    const body = JSON.parse(rawBody);
+    //const body = JSON.parse(rawBody);
     
     // Log the webhook event
     console.log('Webhook event:', {
-      body
+      rawBody
     });
 
     // Return a 200 OK response
