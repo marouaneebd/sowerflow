@@ -28,26 +28,26 @@ export async function GET(request: NextRequest) {
 
 // Handle POST requests (for webhook events)
 export async function POST(request: NextRequest) {
-  const body = await request.json();
+  // Get the raw body text first
+  const rawBody = await request.text();
   
   // Get the signature from headers
   const signature = request.headers.get('x-hub-signature-256');
 
   // Verify the signature
-  if (!verifySignature(await request.clone().text(), signature)) {
+  if (!verifySignature(rawBody, signature)) {
     return new NextResponse('Invalid signature', { status: 403 });
   }
 
   // Process the webhook event
   try {
+    // Parse the JSON after verification
+    const body = JSON.parse(rawBody);
     
-    // Log the webhook event (you can process it according to your needs)
+    // Log the webhook event
     console.log('Webhook event:', {
       body
     });
-
-    // Handle different types of events based on the object and entry fields
-    // You can add your custom logic here to handle comments, messages, etc.
 
     // Return a 200 OK response
     return new NextResponse('OK', { status: 200 });
