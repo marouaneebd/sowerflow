@@ -33,6 +33,7 @@ export default function InstagramStep({ instagram, instagramBio, updateFormData 
           if (tokenExpires > now) {
             setIsConnected(true)
             updateFormData('instagram', data.instagram.username)
+            updateFormData('instagramBio', data.instagram.biography)
           } else {
             // Token is expired, reset connection state
             setIsConnected(false)
@@ -58,7 +59,7 @@ export default function InstagramStep({ instagram, instagramBio, updateFormData 
   }, [])
 
   const handleInstagramLogin = () => {
-    const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${INSTAGRAM_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights`
+    const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${INSTAGRAM_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish`
     window.location.href = authUrl
   }
 

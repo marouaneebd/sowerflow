@@ -41,6 +41,7 @@ export default function OnboardingForm({ onComplete }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<FormData>({
     instagram: '',
+    instagramBio: '',
     product: '',
     offer: '',
     pricing: [],
@@ -75,28 +76,8 @@ export default function OnboardingForm({ onComplete }: Props) {
     }
   }
 
-  const fetchInstagramBio = async () => {
-    try {
-      const response = await fetch('/api/instagram/bio')
-      const data = await response.json()
-      
-      if (data.success) {
-        setFormData(prev => ({
-          ...prev,
-          instagramBio: data.bio
-        }))
-      }
-    } catch (error) {
-      console.error('Error fetching Instagram bio:', error)
-    }
-  }
-
   const updateFormData = async (field: keyof FormData, value: FormData[keyof FormData]) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    
-    if (field === 'instagram' && value) {
-      await fetchInstagramBio()
-    }
   }
 
   const nextStep = () => {
