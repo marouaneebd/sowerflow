@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/app/firebase';
-import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 // Types
 type EventType = 'message' | 'message_reactions' | 'messaging_referral' | 'messaging_optins' | 'messaging_postbacks';
@@ -12,10 +12,7 @@ interface Event {
   date: number;
   type: EventType;
   direction: Direction;
-  event_details: {
-    id: string;
-    [key: string]: any;
-  };
+  event_details: Record<string, unknown> & { id: string };
 }
 
 interface Conversation {
@@ -30,6 +27,45 @@ interface Conversation {
 interface InstagramMessage {
   id: string;
   [key: string]: any;
+}
+
+// Add these interfaces at the top with the other types
+interface InstagramMessageEvent {
+  mid: string;
+  text?: string;
+  attachments?: Array<{
+    type: string;
+    payload: {
+      url: string;
+    };
+  }>;
+}
+
+interface InstagramReactionEvent {
+  mid: string;
+  action: string;
+  reaction: string;
+}
+
+interface InstagramPostbackEvent {
+  mid: string;
+  payload: string;
+  title: string;
+}
+
+interface InstagramReferralEvent {
+  ref: string;
+  source: string;
+}
+
+interface MessagingEvent {
+  sender: { id: string };
+  recipient: { id: string };
+  timestamp: number;
+  message?: InstagramMessageEvent;
+  reaction?: InstagramReactionEvent;
+  postback?: InstagramPostbackEvent;
+  referral?: InstagramReferralEvent;
 }
 
 // This should be stored in environment variables
@@ -86,7 +122,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function processMessagingEvent(messagingEvent: any, appUserId: string) {
+async function processMessagingEvent(messagingEvent: MessagingEvent, appUserId: string) {
   // Determine who is who in the conversation
   const senderId = messagingEvent.sender?.id;
   const recipientId = messagingEvent.recipient?.id;
@@ -106,7 +142,7 @@ async function processMessagingEvent(messagingEvent: any, appUserId: string) {
 
   // Rest of the event type determination remains the same
   let eventType: EventType;
-  let eventDetails: any = {};
+  let eventDetails: Record<string, unknown> & { id: string };
 
   if (messagingEvent.message) {
     eventType = 'message';
@@ -114,28 +150,28 @@ async function processMessagingEvent(messagingEvent: any, appUserId: string) {
       id: messagingEvent.message.mid,
       text: messagingEvent.message.text,
       attachments: messagingEvent.message.attachments,
-    };
+    } as Record<string, unknown> & { id: string };
   } else if (messagingEvent.reaction) {
     eventType = 'message_reactions';
     eventDetails = {
       id: messagingEvent.reaction.mid,
       action: messagingEvent.reaction.action,
       reaction: messagingEvent.reaction.reaction,
-    };
+    } as Record<string, unknown> & { id: string };
   } else if (messagingEvent.postback) {
     eventType = 'messaging_postbacks';
     eventDetails = {
       id: messagingEvent.postback.mid,
       payload: messagingEvent.postback.payload,
       title: messagingEvent.postback.title,
-    };
+    } as Record<string, unknown> & { id: string };
   } else if (messagingEvent.referral) {
     eventType = 'messaging_referral';
     eventDetails = {
       id: `${messagingEvent.timestamp}_referral`,
       ref: messagingEvent.referral.ref,
       source: messagingEvent.referral.source,
-    };
+    } as Record<string, unknown> & { id: string };
   } else {
     return; // Unsupported event type
   }
