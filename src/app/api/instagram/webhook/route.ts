@@ -1,5 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { db } from '@/app/firebase';
+import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+
+// Types
+type EventType = 'message' | 'message_reactions' | 'messaging_referral' | 'messaging_optins' | 'messaging_postbacks';
+type Direction = 'sent' | 'received';
+type ConversationStatus = 'sending_message' | 'waiting_message' | 'setted' | 'abandoned' | 'ignored';
+
+interface Event {
+  date: number;
+  type: EventType;
+  direction: Direction;
+  event_details: {
+    id: string;
+    [key: string]: any;
+  };
+}
+
+interface Conversation {
+  created_at: number;
+  updated_at: number;
+  app_user_id: string;
+  scoped_user_id: string;
+  status: ConversationStatus;
+  events: Event[];
+}
+
+interface InstagramMessage {
+  id: string;
+  [key: string]: any;
+}
 
 // This should be stored in environment variables
 const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
@@ -28,33 +59,156 @@ export async function GET(request: NextRequest) {
 
 // Handle POST requests (for webhook events)
 export async function POST(request: NextRequest) {
-  // Get the raw body text first
   const rawBody = await request.text();
-  
-  // Get the signature from headers
   const signature = request.headers.get('x-hub-signature-256');
 
-  // Verify the signature
   if (!verifySignature(rawBody, signature)) {
     return new NextResponse('Invalid signature', { status: 403 });
   }
 
-  // Process the webhook event
   try {
-    // Parse the JSON after verification
-    //const body = JSON.parse(rawBody);
+    const body = JSON.parse(rawBody);
     
-    // Log the webhook event
-    console.log('Webhook event:', {
-      rawBody
-    });
+    // Process each entry in the webhook
+    for (const entry of body.entry) {
+      // Handle messaging events
+      if (entry.messaging) {
+        for (const messagingEvent of entry.messaging) {
+          await processMessagingEvent(messagingEvent, entry.id);
+        }
+      }
+    }
 
-    // Return a 200 OK response
     return new NextResponse('OK', { status: 200 });
   } catch (error) {
     console.error('Error processing webhook:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
+}
+
+async function processMessagingEvent(messagingEvent: any, appUserId: string) {
+  // Determine who is who in the conversation
+  const senderId = messagingEvent.sender?.id;
+  const recipientId = messagingEvent.recipient?.id;
+  
+  // If the app user is the sender, then the scoped user is the recipient
+  // If the app user is the recipient, then the scoped user is the sender
+  let scopedUserId: string;
+  let direction: Direction;
+  
+  if (senderId === appUserId) {
+    scopedUserId = recipientId;
+    direction = 'sent';
+  } else {
+    scopedUserId = senderId;
+    direction = 'received';
+  }
+
+  // Rest of the event type determination remains the same
+  let eventType: EventType;
+  let eventDetails: any = {};
+
+  if (messagingEvent.message) {
+    eventType = 'message';
+    eventDetails = {
+      id: messagingEvent.message.mid,
+      text: messagingEvent.message.text,
+      attachments: messagingEvent.message.attachments,
+    };
+  } else if (messagingEvent.reaction) {
+    eventType = 'message_reactions';
+    eventDetails = {
+      id: messagingEvent.reaction.mid,
+      action: messagingEvent.reaction.action,
+      reaction: messagingEvent.reaction.reaction,
+    };
+  } else if (messagingEvent.postback) {
+    eventType = 'messaging_postbacks';
+    eventDetails = {
+      id: messagingEvent.postback.mid,
+      payload: messagingEvent.postback.payload,
+      title: messagingEvent.postback.title,
+    };
+  } else if (messagingEvent.referral) {
+    eventType = 'messaging_referral';
+    eventDetails = {
+      id: `${messagingEvent.timestamp}_referral`,
+      ref: messagingEvent.referral.ref,
+      source: messagingEvent.referral.source,
+    };
+  } else {
+    return; // Unsupported event type
+  }
+
+  const event: Event = {
+    date: messagingEvent.timestamp,
+    type: eventType,
+    direction,
+    event_details: eventDetails,
+  };
+
+  await processConversationEvent(appUserId, scopedUserId, event);
+}
+
+async function processConversationEvent(appUserId: string, scopedUserId: string, event: Event) {
+  const conversationId = `${appUserId}_${scopedUserId}`;
+  const conversationRef = doc(db, 'conversations', conversationId);
+  const conversationDoc = await getDoc(conversationRef);
+
+  if (!conversationDoc.exists()) {
+    // Create new conversation
+    const newConversation: Conversation = {
+      created_at: Date.now(),
+      updated_at: Date.now(),
+      app_user_id: appUserId,
+      scoped_user_id: scopedUserId,
+      status: 'ignored',
+      events: [event],
+    };
+
+    if (event.direction === 'received') {
+      // Get conversation history from Instagram API
+      const messages = await getInstagramConversationHistory(appUserId, scopedUserId);
+      
+      if (event.type === 'message') {
+        // Remove triggering message from history
+        const filteredMessages = messages.filter(msg => msg.id !== event.event_details.id);
+        
+        newConversation.status = filteredMessages.length === 0 ? 'sending_message' : 'ignored';
+      }
+    }
+
+    await setDoc(conversationRef, newConversation);
+  } else {
+    const conversation = conversationDoc.data() as Conversation;
+
+    // Check if conversation is ignored or event already exists
+    if (conversation.status === 'ignored' || 
+        conversation.events.some(e => e.event_details.id === event.event_details.id)) {
+      return;
+    }
+
+    // Update conversation
+    const updates: Partial<Conversation> = {
+      updated_at: Date.now(),
+      events: [...conversation.events, event],
+    };
+
+    if (event.direction === 'received') {
+      if (event.type === 'message') {
+        updates.status = 'sending_message';
+      }
+    } else {
+      updates.status = 'waiting_message';
+    }
+
+    await updateDoc(conversationRef, updates);
+  }
+}
+
+async function getInstagramConversationHistory(appUserId: string, scopedUserId: string): Promise<InstagramMessage[]> {
+  // Implementation of Instagram API call to get conversation history
+  return [];
 }
 
 // Verify the signature from Instagram
