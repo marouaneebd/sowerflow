@@ -26,7 +26,13 @@ interface Conversation {
 
 interface InstagramMessage {
   id: string;
-  [key: string]: any;
+  text?: string;
+  attachments?: Array<{
+    type: string;
+    payload: {
+      url: string;
+    };
+  }>;
 }
 
 // Add these interfaces at the top with the other types
@@ -243,6 +249,7 @@ async function processConversationEvent(appUserId: string, scopedUserId: string,
 }
 
 async function getInstagramConversationHistory(appUserId: string, scopedUserId: string): Promise<InstagramMessage[]> {
+  console.log(appUserId, scopedUserId);
   // Implementation of Instagram API call to get conversation history
   return [];
 }
