@@ -89,7 +89,7 @@ export async function POST(request: Request) {
 
     // Get user info
     const userResponse = await fetch(
-      `https://graph.instagram.com/me?fields=id,username,biography&access_token=${access_token}`
+      `https://graph.instagram.com/me?fields=user_id,username,biography&access_token=${access_token}`
     )
 
     const userData = await userResponse.json()
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     await updateDoc(userDocRef, {
       instagram: {
         username: userData.username,
-        userId: userData.id,
+        userId: userData.user_id,
         biography: userData.biography,
         permissions: permissions,
         accessToken: longLivedToken,
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       username: userData.username,
-      userId: userData.id,
+      userId: userData.user_id,
       permissions: permissions,
       biography: userData.biography,
     })
