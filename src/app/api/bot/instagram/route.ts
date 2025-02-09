@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/app/firebase';
-import { collection, query, where, orderBy, limit, getDocs, updateDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { ChatMessage, ChatRole } from '@/types/chat';
 import { Conversation, Event } from '@/types/instagram';
 
