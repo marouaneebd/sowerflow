@@ -5,7 +5,7 @@ import { ChatMessage, ChatRole } from '@/types/chat';
 import { Conversation, Event } from '@/types/instagram';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // 5 minutes timeout
+export const maxDuration = 60;
 
 // This will be called by Vercel Cron
 export async function GET(req: Request) {
