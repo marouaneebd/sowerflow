@@ -110,6 +110,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = JSON.parse(rawBody);
+
+    console.log(body);
     
     // Process each entry in the webhook
     for (const entry of body.entry) {
