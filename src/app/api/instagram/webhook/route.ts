@@ -45,6 +45,7 @@ interface InstagramMessageEvent {
       url: string;
     };
   }>;
+  is_echo?: boolean;
 }
 
 interface InstagramReactionEvent {
@@ -131,12 +132,15 @@ export async function POST(request: NextRequest) {
 }
 
 async function processMessagingEvent(messagingEvent: MessagingEvent, appUserId: string) {
-  // Determine who is who in the conversation
-  const senderId = messagingEvent.sender?.id;
-  const recipientId = messagingEvent.recipient?.id;
+  // Validate required fields
+  if (!messagingEvent.sender?.id || !messagingEvent.recipient?.id || !messagingEvent.timestamp) {
+    console.error('Missing required fields in messaging event');
+    return;
+  }
+
+  const senderId = messagingEvent.sender.id;
+  const recipientId = messagingEvent.recipient.id;
   
-  // If the app user is the sender, then the scoped user is the recipient
-  // If the app user is the recipient, then the scoped user is the sender
   let scopedUserId: string;
   let direction: Direction;
   
@@ -148,7 +152,6 @@ async function processMessagingEvent(messagingEvent: MessagingEvent, appUserId: 
     direction = 'received';
   }
 
-  // Rest of the event type determination remains the same
   let eventType: EventType;
   let eventDetails: Record<string, unknown> & { id: string };
 
@@ -156,32 +159,34 @@ async function processMessagingEvent(messagingEvent: MessagingEvent, appUserId: 
     eventType = 'message';
     eventDetails = {
       id: messagingEvent.message.mid,
-      text: messagingEvent.message.text,
-      attachments: messagingEvent.message.attachments,
+      text: messagingEvent.message.text || '',
+      attachments: messagingEvent.message.attachments || [],
+      is_echo: messagingEvent.message.is_echo || false
     } as Record<string, unknown> & { id: string };
   } else if (messagingEvent.reaction) {
     eventType = 'message_reactions';
     eventDetails = {
       id: messagingEvent.reaction.mid,
-      action: messagingEvent.reaction.action,
-      reaction: messagingEvent.reaction.reaction,
+      action: messagingEvent.reaction.action || '',
+      reaction: messagingEvent.reaction.reaction || ''
     } as Record<string, unknown> & { id: string };
   } else if (messagingEvent.postback) {
     eventType = 'messaging_postbacks';
     eventDetails = {
       id: messagingEvent.postback.mid,
-      payload: messagingEvent.postback.payload,
-      title: messagingEvent.postback.title,
+      payload: messagingEvent.postback.payload || '',
+      title: messagingEvent.postback.title || ''
     } as Record<string, unknown> & { id: string };
   } else if (messagingEvent.referral) {
     eventType = 'messaging_referral';
     eventDetails = {
       id: `${messagingEvent.timestamp}_referral`,
-      ref: messagingEvent.referral.ref,
-      source: messagingEvent.referral.source,
+      ref: messagingEvent.referral.ref || '',
+      source: messagingEvent.referral.source || ''
     } as Record<string, unknown> & { id: string };
   } else {
-    return; // Unsupported event type
+    console.log('Unsupported event type');
+    return;
   }
 
   const event: Event = {
