@@ -1,0 +1,9 @@
+{
+  "crons": [{
+    "path": "/api/bot/instagram",
+    "schedule": "* * * * *",
+    "headers": {
+      "x-cron-secret": "@cron_secret"
+    }
+  }]
+} 

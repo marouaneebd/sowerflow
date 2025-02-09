@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { unstable_noStore as noStore } from "next/cache"
+import { ChatMessage } from "@/types/chat"
 
 export const maxDuration = 30
 export const dynamic = "force-dynamic"
 
 export default function Chat() {
   noStore()
-  const [messages, setMessages] = useState<{ id: string; role: string; content: string }[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -24,13 +25,13 @@ export default function Chat() {
     e.preventDefault()
     if (!input.trim()) return
 
-    const userMessage = { id: Date.now().toString(), role: "user", content: input }
+    const userMessage: ChatMessage = { id: Date.now().toString(), role: "user" as const, content: input }
     setMessages((prevMessages) => [...prevMessages, userMessage])
     setInput("")
     setIsTyping(true)
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/bot/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: [...messages, userMessage] }),
@@ -43,13 +44,13 @@ export default function Chat() {
       const data = await response.json()
       setMessages((prevMessages) => [
         ...prevMessages,
-        { id: Date.now().toString(), role: "assistant", content: data.message },
+        { id: Date.now().toString(), role: "assistant" as const, content: data.message },
       ])
     } catch (error) {
       console.error("Error:", error)
       setMessages((prevMessages) => [
         ...prevMessages,
-        { id: Date.now().toString(), role: "assistant", content: "Désolé, j'ai rencontré une erreur. Veuillez réessayer ou contacter le support." },
+        { id: Date.now().toString(), role: "assistant" as const, content: "Désolé, j'ai rencontré une erreur. Veuillez réessayer ou contacter le support." },
       ])
     } finally {
       setIsTyping(false)
@@ -64,7 +65,7 @@ export default function Chat() {
     const initializeChat = async () => {
       setIsTyping(true)
       try {
-        const response = await fetch("/api/chat", {
+        const response = await fetch("/api/bot/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: [] }),
@@ -76,14 +77,14 @@ export default function Chat() {
 
         const data = await response.json()
         setMessages([
-          { id: Date.now().toString(), role: "assistant", content: data.message }
+          { id: Date.now().toString(), role: "assistant" as const, content: data.message }
         ])
       } catch (error) {
         console.error("Error initializing chat:", error)
         setMessages([
           { 
             id: Date.now().toString(), 
-            role: "assistant", 
+            role: "assistant" as const, 
             content: "Désolé, j'ai rencontré une erreur lors de l'initialisation. Veuillez rafraîchir la page ou contacter le support." 
           }
         ])

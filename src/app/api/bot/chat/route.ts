@@ -3,6 +3,7 @@ import { generateText } from "ai"
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/app/firebase';
 import { verifyAuth } from '@/lib/auth';
+import { ChatMessage } from "@/types/chat"
 
 export const maxDuration = 30
 export const dynamic = "force-dynamic"
@@ -50,7 +51,8 @@ export async function POST(req: Request) {
       }
     }
     
-    const systemMessage = {
+    const systemMessage: ChatMessage = {
+      id: Date.now().toString(),
       role: "system",
       content: systemMessageContent
     }

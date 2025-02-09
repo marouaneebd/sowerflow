@@ -2,78 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/app/firebase';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-
-// Types
-type EventType = 'message' | 'message_reactions' | 'messaging_referral' | 'messaging_optins' | 'messaging_postbacks';
-type Direction = 'sent' | 'received';
-type ConversationStatus = 'sending_message' | 'waiting_message' | 'setted' | 'abandoned' | 'ignored';
-
-interface Event {
-  date: number;
-  type: EventType;
-  direction: Direction;
-  event_details: Record<string, unknown> & { id: string };
-}
-
-interface Conversation {
-  created_at: number;
-  updated_at: number;
-  app_user_id: string;
-  scoped_user_id: string;
-  status: ConversationStatus;
-  events: Event[];
-}
-
-interface InstagramMessage {
-  id: string;
-  text?: string;
-  attachments?: Array<{
-    type: string;
-    payload: {
-      url: string;
-    };
-  }>;
-}
-
-// Add these interfaces at the top with the other types
-interface InstagramMessageEvent {
-  mid: string;
-  text?: string;
-  attachments?: Array<{
-    type: string;
-    payload: {
-      url: string;
-    };
-  }>;
-  is_echo?: boolean;
-}
-
-interface InstagramReactionEvent {
-  mid: string;
-  action: string;
-  reaction: string;
-}
-
-interface InstagramPostbackEvent {
-  mid: string;
-  payload: string;
-  title: string;
-}
-
-interface InstagramReferralEvent {
-  ref: string;
-  source: string;
-}
-
-interface MessagingEvent {
-  sender: { id: string };
-  recipient: { id: string };
-  timestamp: number;
-  message?: InstagramMessageEvent;
-  reaction?: InstagramReactionEvent;
-  postback?: InstagramPostbackEvent;
-  referral?: InstagramReferralEvent;
-}
+import { 
+  MessagingEvent, 
+  Event, 
+  EventType, 
+  Direction, 
+  Conversation,
+  InstagramMessage
+} from '@/types/instagram';
 
 // This should be stored in environment variables
 const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
