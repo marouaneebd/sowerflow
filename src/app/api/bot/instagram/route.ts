@@ -9,7 +9,7 @@ export const maxDuration = 300; // 5 minutes timeout
 
 // This will be called by Vercel Cron
 export async function GET(req: Request) {
-  // Verify cron secret
+  // Verify cron secret from environment variable
   const cronSecret = req.headers.get('x-cron-secret');
   if (cronSecret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
