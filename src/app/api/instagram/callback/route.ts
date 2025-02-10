@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/app/firebase'
 import { verifyAuth } from '@/lib/auth'
-import { ProfileData, InstagramProfile } from '@/types/profile'
+import { InstagramProfile } from '@/types/profile'
 
 const INSTAGRAM_CLIENT_ID = process.env.INSTAGRAM_CLIENT_ID
 const INSTAGRAM_CLIENT_SECRET = process.env.INSTAGRAM_CLIENT_SECRET
