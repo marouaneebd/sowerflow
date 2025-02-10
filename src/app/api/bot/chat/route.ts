@@ -11,14 +11,22 @@ export const dynamic = "force-dynamic"
 export async function POST(req: Request) {
   try {
     // Verify authentication
-    const { uid } = await verifyAuth(req);
+    const auth = await verifyAuth(req);
     
-    // Get user profile
-    const docRef = doc(db, 'profiles', uid);
-    const docSnap = await getDoc(docRef);
-    const profileData = docSnap.exists() ? docSnap.data() : null;
+    // Only get user profile for regular users
+    let profileData = null;
+    if (!auth.isSystem) {
+      const docRef = doc(db, 'profiles', auth.uid);
+      const docSnap = await getDoc(docRef);
+      profileData = docSnap.exists() ? docSnap.data() : null;
+    }
     
-    const { messages } = await req.json()
+    const { messages, profile } = await req.json();
+
+    // If it's a system request, get the profile using profileId
+    if (auth.isSystem && profile) {
+      profileData = profile;
+    }
 
     // Base system message
     let systemMessageContent = "Tu es un instagramer qui contacte ses followers sur Instagram et tu es un expert dans le domaine de la vente. Tu parles uniquement en français sur un ton détendu et tu n'utilises pas beaucoup d'emojis. Tu privilégies des messages courts et concis. Tu dois chercher à comprendre le profil de la personne et amener naturellement la conversation vers une compréhension de ses besoins pour au final lui faire prendre rendez-vous avec toi via ton lien de prise de rendez-vous. Ne lui envoie le lien de prise qu'une fois qu'il a accepté de prendre rendez-vous. Fait en sorte d'amener le sujet de la vente de manière naturelle et sans être trop direct. Voici les informations concernant l'instagramer dont tu as besoin :"

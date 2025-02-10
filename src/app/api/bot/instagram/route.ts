@@ -33,6 +33,21 @@ export async function GET(req: Request) {
     const conversationDoc = querySnapshot.docs[0];
     const conversation = conversationDoc.data() as Conversation;
 
+    // Get user's profile first
+    const profilesRef = collection(db, 'profiles');
+    const profileQuery = query(
+      profilesRef,
+      where('instagram.userId', '==', conversation.app_user_id),
+      limit(1)
+    );
+    
+    const profileSnapshot = await getDocs(profileQuery);
+    if (profileSnapshot.empty) {
+      throw new Error('Profile not found');
+    }
+
+    const profile = profileSnapshot.docs[0].data();
+
     // Convert events to chat messages
     const messages: ChatMessage[] = conversation.events
       .filter(event => event.type === 'message')
@@ -47,15 +62,17 @@ export async function GET(req: Request) {
         return (eventA?.date || 0) - (eventB?.date || 0);
       });
 
-    // Get AI response
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/bot/chat`, {
+    // Get AI response with uid
+    const response = await fetch("/api/bot/chat", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Add auth header using a service account or similar
         'Authorization': `Bearer ${process.env.SERVICE_ACCOUNT_TOKEN}`
       },
-      body: JSON.stringify({ messages })
+      body: JSON.stringify({ 
+        messages,
+        profile
+      })
     });
 
     if (!response.ok) {
@@ -63,21 +80,6 @@ export async function GET(req: Request) {
     }
 
     const { message: aiResponse } = await response.json();
-
-    // Get user's Instagram token from profile
-    const profilesRef = collection(db, 'profiles');
-    const profileQuery = query(
-      profilesRef,
-      where('instagram.userId', '==', conversation.app_user_id),
-      limit(1)
-    );
-    
-    const profileSnapshot = await getDocs(profileQuery);
-    if (profileSnapshot.empty || !profileSnapshot.docs[0].data().instagram?.accessToken) {
-      throw new Error('Instagram access token not found');
-    }
-
-    const profile = profileSnapshot.docs[0].data();
 
     // Send message to Instagram
     const instagramResponse = await fetch(`https://graph.instagram.com/v22.0/${conversation.app_user_id}/messages`, {
