@@ -3,6 +3,7 @@ import { db } from '@/app/firebase';
 import { collection, query, where, orderBy, limit, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { ChatMessage, ChatRole } from '@/types/chat';
 import { Conversation, Event } from '@/types/instagram';
+import { generateAIResponse } from '@/lib/messageBuilder';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -62,24 +63,8 @@ export async function GET(req: Request) {
         return (eventA?.date || 0) - (eventB?.date || 0);
       });
 
-    // Get AI response with uid
-    const response = await fetch("/api/bot/chat", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.SERVICE_ACCOUNT_TOKEN}`
-      },
-      body: JSON.stringify({ 
-        messages,
-        profile
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to get AI response');
-    }
-
-    const { message: aiResponse } = await response.json();
+    // Get AI response directly using the new function
+    const aiResponse = await generateAIResponse(profile, messages);
 
     // Send message to Instagram
     const instagramResponse = await fetch(`https://graph.instagram.com/v22.0/${conversation.app_user_id}/messages`, {
