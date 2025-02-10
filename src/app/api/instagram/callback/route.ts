@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/app/firebase'
 import { verifyAuth } from '@/lib/auth'
+import { ProfileData, InstagramProfile } from '@/types/profile'
 
 const INSTAGRAM_CLIENT_ID = process.env.INSTAGRAM_CLIENT_ID
 const INSTAGRAM_CLIENT_SECRET = process.env.INSTAGRAM_CLIENT_SECRET
@@ -102,17 +103,19 @@ export async function POST(request: Request) {
     const { access_token: longLivedToken, expires_in } = await longLivedTokenResponse.json()
 
     // Store Instagram data in user's profile
+    const instagramData: InstagramProfile = {
+      username: userData.username,
+      userId: userData.user_id,
+      biography: userData.biography,
+      permissions: permissions,
+      accessToken: longLivedToken,
+      tokenExpires: new Date(Date.now() + expires_in * 1000).toISOString(),
+      lastUpdated: new Date().toISOString()
+    };
+
     await updateDoc(userDocRef, {
-      instagram: {
-        username: userData.username,
-        userId: userData.user_id,
-        biography: userData.biography,
-        permissions: permissions,
-        accessToken: longLivedToken,
-        tokenExpires: new Date(Date.now() + expires_in * 1000).toISOString(),
-        lastUpdated: new Date().toISOString()
-      }
-    })
+      instagram: instagramData
+    });
 
     return NextResponse.json({
       success: true,

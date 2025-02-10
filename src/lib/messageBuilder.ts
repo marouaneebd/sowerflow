@@ -1,20 +1,7 @@
 import { ChatMessage } from "@/types/chat";
 import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
-
-export interface OnboardingForm {
-  product?: string;
-  offer?: string;
-  pricing?: Array<{ name: string; price: number }>;
-  callInfo?: string;
-  calendly?: string;
-}
-
-export interface ProfileData {
-  onboardingForm?: OnboardingForm;
-  [key: string]: any;
-}
-
+import { ProfileData } from "@/types/profile";
 export function buildSystemMessage(profileData: ProfileData | null): ChatMessage {
   let systemMessageContent = "Tu es un instagramer qui contacte ses followers sur Instagram et tu es un expert dans le domaine de la vente. Tu parles uniquement en français sur un ton détendu et tu n'utilises pas beaucoup d'emojis. Tu privilégies des messages courts et concis. Tu dois chercher à comprendre le profil de la personne et amener naturellement la conversation vers une compréhension de ses besoins pour au final lui faire prendre rendez-vous avec toi via ton lien de prise de rendez-vous. Ne lui envoie le lien de prise qu'une fois qu'il a accepté de prendre rendez-vous. Fait en sorte d'amener le sujet de la vente de manière naturelle et sans être trop direct. Voici les informations concernant l'instagramer dont tu as besoin :";
 

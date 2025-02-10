@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/app/firebase';
 import { verifyAuth } from '@/lib/auth';
+import { ProfileData } from '@/types/profile';
 
 // GET method for fetching the profile
 export async function GET(req: NextRequest) {
@@ -46,12 +47,12 @@ export async function POST(req: NextRequest) {
     const docSnap = await getDoc(docRef);
 
     const timestamp = new Date().toISOString();
-    const profileUpdate = {
+    const profileUpdate: Partial<ProfileData> = {
       onboardingForm: formData,
       lastUpdated: timestamp,
       ...((!docSnap.exists()) && { 
         createdAt: timestamp,
-        plan: 'free' // Set default plan for new profiles
+        plan: 'free'
       })
     };
 
