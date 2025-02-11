@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/app/firebase';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { 
-  MessagingEvent, 
-  Event, 
-  EventType, 
-  Direction, 
+import {
+  MessagingEvent,
+  Event,
+  EventType,
+  Direction,
   Conversation,
   InstagramMessage
 } from '@/types/instagram';
@@ -18,7 +18,7 @@ const APP_SECRET = process.env.INSTAGRAM_APP_SECRET;
 // Handle GET requests (for webhook verification)
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  
+
   const mode = searchParams.get('hub.mode');
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const body = JSON.parse(rawBody);
 
     console.log(JSON.stringify(body));
-    
+
     // Process each entry in the webhook
     for (const entry of body.entry) {
       // Handle messaging events
@@ -76,10 +76,10 @@ async function processMessagingEvent(messagingEvent: MessagingEvent, appUserId: 
 
   const senderId = messagingEvent.sender.id;
   const recipientId = messagingEvent.recipient.id;
-  
+
   let scopedUserId: string;
   let direction: Direction;
-  
+
   if (senderId === appUserId) {
     scopedUserId = recipientId;
     direction = 'sent';
@@ -154,11 +154,11 @@ async function processConversationEvent(appUserId: string, scopedUserId: string,
     if (event.direction === 'received') {
       // Get conversation history from Instagram API
       const messages = await getInstagramConversationHistory(appUserId, scopedUserId);
-      
+
       if (event.type === 'message') {
         // Remove triggering message from history
         const filteredMessages = messages.filter(msg => msg.id !== event.event_details.id);
-        
+
         newConversation.status = filteredMessages.length === 0 ? 'sending_message' : 'ignored';
       }
     }
@@ -168,8 +168,8 @@ async function processConversationEvent(appUserId: string, scopedUserId: string,
     const conversation = conversationDoc.data() as Conversation;
 
     // Check if conversation is ignored or event already exists
-    if (conversation.status === 'ignored' || 
-        conversation.events.some(e => e.event_details.id === event.event_details.id)) {
+    if (conversation.status === 'ignored' ||
+      conversation.events.some(e => e.event_details.id === event.event_details.id)) {
       return;
     }
 
@@ -179,12 +179,12 @@ async function processConversationEvent(appUserId: string, scopedUserId: string,
       events: [...conversation.events, event],
     };
 
-    if (event.direction === 'received') {
-      if (event.type === 'message') {
+    if (event.type === 'message') {
+      if (event.direction === 'received') {
         updates.status = 'sending_message';
+      } else {
+        updates.status = 'ignored';
       }
-    } else {
-      updates.status = 'waiting_message';
     }
 
     await updateDoc(conversationRef, updates);
