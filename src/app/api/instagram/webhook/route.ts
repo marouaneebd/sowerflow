@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { db } from '@/app/firebase';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import {
   MessagingEvent,
   Event,
@@ -52,10 +52,22 @@ export async function POST(request: NextRequest) {
 
     // Process each entry in the webhook
     for (const entry of body.entry) {
+      // Find the user UID from profiles collection
+      const profilesRef = collection(db, 'profiles');
+      const q = query(profilesRef, where('instagram.userId', '==', entry.id));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        console.error(`No user found for Instagram ID: ${entry.id}`);
+        continue;
+      }
+
+      const uuid = querySnapshot.docs[0].id;
+      const accessToken = querySnapshot.docs[0].data().instagram.accessToken;
       // Handle messaging events
       if (entry.messaging) {
         for (const messagingEvent of entry.messaging) {
-          await processMessagingEvent(messagingEvent, entry.id);
+          await processMessagingEvent(messagingEvent, entry.id, uuid, accessToken);
         }
       }
     }
@@ -67,7 +79,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function processMessagingEvent(messagingEvent: MessagingEvent, appUserId: string) {
+async function processMessagingEvent(messagingEvent: MessagingEvent, instagram_user_id: string, uuid: string, accessToken: string) {
   // Validate required fields
   if (!messagingEvent.sender?.id || !messagingEvent.recipient?.id || !messagingEvent.timestamp) {
     console.error('Missing required fields in messaging event');
@@ -80,7 +92,7 @@ async function processMessagingEvent(messagingEvent: MessagingEvent, appUserId: 
   let scopedUserId: string;
   let direction: Direction;
 
-  if (senderId === appUserId) {
+  if (senderId === instagram_user_id) {
     scopedUserId = recipientId;
     direction = 'sent';
   } else {
@@ -132,36 +144,29 @@ async function processMessagingEvent(messagingEvent: MessagingEvent, appUserId: 
     event_details: eventDetails,
   };
 
-  await processConversationEvent(appUserId, scopedUserId, event);
+  await processConversationEvent(uuid, instagram_user_id, scopedUserId, event, accessToken);
 }
 
-async function processConversationEvent(appUserId: string, scopedUserId: string, event: Event) {
-  const conversationId = `${appUserId}_${scopedUserId}`;
+async function processConversationEvent(uuid: string, instagram_user_id: string, scopedUserId: string, event: Event, accessToken: string) {
+  const conversationId = `${instagram_user_id}_${scopedUserId}`;
   const conversationRef = doc(db, 'conversations', conversationId);
   const conversationDoc = await getDoc(conversationRef);
 
   if (!conversationDoc.exists()) {
+
+    const fetchProfile = await fetch(`https://graph.instagram.com/v22.0/${scopedUserId}?access_token=${accessToken}`);
+    const { username } = await fetchProfile.json();
     // Create new conversation
     const newConversation: Conversation = {
+      uuid: uuid,
       created_at: Date.now(),
       updated_at: Date.now(),
-      app_user_id: appUserId,
+      instagram_user_id: instagram_user_id,
       scoped_user_id: scopedUserId,
-      status: 'ignored',
+      scoped_user_username: username.username,
+      status: 'sending_message',
       events: [event],
     };
-
-    if (event.direction === 'received') {
-      // Get conversation history from Instagram API
-      const messages = await getInstagramConversationHistory(appUserId, scopedUserId);
-
-      if (event.type === 'message') {
-        // Remove triggering message from history
-        const filteredMessages = messages.filter(msg => msg.id !== event.event_details.id);
-
-        newConversation.status = filteredMessages.length === 0 ? 'sending_message' : 'ignored';
-      }
-    }
 
     await setDoc(conversationRef, newConversation);
   } else {
@@ -183,18 +188,16 @@ async function processConversationEvent(appUserId: string, scopedUserId: string,
       if (event.direction === 'received') {
         updates.status = 'sending_message';
       } else {
-        updates.status = 'ignored';
+        if (event.event_details.is_echo) {
+          updates.status = 'ignored';
+        } else {
+          updates.status = 'sending_message';
+        }
       }
     }
 
     await updateDoc(conversationRef, updates);
   }
-}
-
-async function getInstagramConversationHistory(appUserId: string, scopedUserId: string): Promise<InstagramMessage[]> {
-  console.log(appUserId, scopedUserId);
-  // Implementation of Instagram API call to get conversation history
-  return [];
 }
 
 // Verify the signature from Instagram

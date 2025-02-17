@@ -10,9 +10,11 @@ export interface Event {
 }
 
 export interface Conversation {
+  scoped_user_username: string;
+  uuid: string;
   created_at: number;
   updated_at: number;
-  app_user_id: string;
+  instagram_user_id: string;
   scoped_user_id: string;
   status: ConversationStatus;
   events: Event[];

@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     const profilesRef = collection(db, 'profiles');
     const profileQuery = query(
       profilesRef,
-      where('instagram.userId', '==', conversation.app_user_id),
+      where('instagram.userId', '==', conversation.instagram_user_id),
       limit(1)
     );
     
@@ -64,10 +64,10 @@ export async function GET(req: Request) {
       });
 
     // Get AI response directly using the new function
-    const aiResponse = await generateAIResponse(profile, messages);
+    const aiResponse = await generateAIResponse(profile, messages, conversationDoc.id);
 
     // Send message to Instagram
-    const instagramResponse = await fetch(`https://graph.instagram.com/v22.0/${conversation.app_user_id}/messages`, {
+    const instagramResponse = await fetch(`https://graph.instagram.com/v22.0/${conversation.instagram_user_id}/messages`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${profile.instagram.accessToken}`,
