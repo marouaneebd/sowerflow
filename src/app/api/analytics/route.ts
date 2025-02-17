@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
         updated_at: conversationData.updated_at,
         instagram_user_id: conversationData.instagram_user_id,
         scoped_user_id: conversationData.scoped_user_id,
+        scoped_user_username: conversationData.scoped_user_username,
         status: conversationData.status,
         events: conversationData.events
       };
