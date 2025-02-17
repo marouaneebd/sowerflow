@@ -153,8 +153,8 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
 
   if (!conversationDoc.exists()) {
 
-    const fetchProfile = await fetch(`https://graph.instagram.com/v22.0/${scopedUserId}?access_token=${accessToken}`);
-    const { username } = await fetchProfile.json();
+    const fetchInstagramProfile = await fetch(`https://graph.instagram.com/v22.0/${scopedUserId}?access_token=${accessToken}`);
+    const instagramProfile = await fetchInstagramProfile.json();
     // Create new conversation
     const newConversation: Conversation = {
       uuid: uuid,
@@ -162,7 +162,7 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
       updated_at: Date.now(),
       instagram_user_id: instagram_user_id,
       scoped_user_id: scopedUserId,
-      scoped_user_username: username.username,
+      scoped_user_username: instagramProfile.username,
       status: 'sending_message',
       events: [event],
     };
