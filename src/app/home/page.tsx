@@ -5,14 +5,10 @@ import { useEffect, useState } from 'react';
 import OnboardingForm from '@/components/onboarding-form/OnboardingForm';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Conversation } from '@/types/instagram';
 
 interface Analytics {
-  conversations: Array<{
-    created_at: string;
-    updated_at: string;
-    scoped_user_id: string;
-    status: string;
-  }>;
+  conversations: Array<Conversation>;
   stats: {
     totalConversations: number;
     settedConversations: number;
@@ -135,26 +131,24 @@ export default function Home() {
                       <TableHead>Statut</TableHead>
                       <TableHead>Date de création</TableHead>
                       <TableHead>Dernière mise à jour</TableHead>
-                      <TableHead>Lien Instagram</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {analytics.conversations.map((conversation, index) => (
                       <TableRow key={index}>
-                        <TableCell>{conversation.scoped_user_id}</TableCell>
-                        <TableCell>{conversation.status}</TableCell>
-                        <TableCell>{new Date(conversation.created_at).toLocaleDateString()}</TableCell>
-                        <TableCell>{new Date(conversation.updated_at).toLocaleDateString()}</TableCell>
                         <TableCell>
                           <a 
-                            href={`https://ig.me/${conversation.scoped_user_id}`}
+                            href={`https://www.instagram.com/${conversation.scoped_user_username}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:text-blue-800 underline"
                           >
-                            Voir sur Instagram
+                            {conversation.scoped_user_username}
                           </a>
                         </TableCell>
+                        <TableCell>{conversation.status}</TableCell>
+                        <TableCell>{new Date(conversation.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(conversation.updated_at).toLocaleDateString()}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
