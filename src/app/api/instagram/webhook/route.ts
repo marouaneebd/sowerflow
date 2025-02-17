@@ -7,8 +7,7 @@ import {
   Event,
   EventType,
   Direction,
-  Conversation,
-  InstagramMessage
+  Conversation
 } from '@/types/instagram';
 
 // This should be stored in environment variables

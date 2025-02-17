@@ -24,7 +24,7 @@ export default function Home() {
   const router = useRouter();
   const { status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
-  const [showChat, setShowChat] = useState(false);
+  //const [showChat, setShowChat] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
@@ -35,10 +35,10 @@ export default function Home() {
       
       if (!data.onboardingForm || data.onboardingForm.status !== 'finished') {
         setNeedsOnboarding(true);
-        setShowChat(false);
+        //setShowChat(false);
       } else {
         setNeedsOnboarding(false);
-        setShowChat(true);
+        //setShowChat(true);
       }
       setIsLoading(false);
     } catch (error) {
