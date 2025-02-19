@@ -33,6 +33,21 @@ export async function GET(req: Request) {
 
     const conversationDoc = querySnapshot.docs[0];
     const conversation = conversationDoc.data() as Conversation;
+    
+    console.log('Conversation data:', {
+      id: conversationDoc.id,
+      instagram_user_id: conversation.instagram_user_id,
+      status: conversation.status
+    });
+
+    // Add validation for instagram_user_id
+    if (!conversation.instagram_user_id) {
+      console.error('Missing instagram_user_id for conversation:', conversationDoc.id);
+      return NextResponse.json(
+        { error: 'Invalid conversation data: missing instagram_user_id' },
+        { status: 400 }
+      );
+    }
 
     // Get user's profile first
     const profilesRef = collection(db, 'profiles');
