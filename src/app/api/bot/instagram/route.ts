@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     const profilesRef = collection(db, 'profiles');
     const profileQuery = query(
       profilesRef,
-      where('instagram.userId', '==', conversation.instagram_user_id),
+      where('instagram.instagram_user_id', '==', conversation.instagram_user_id),
       limit(1)
     );
     
