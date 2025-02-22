@@ -3,12 +3,10 @@ import crypto from 'crypto';
 import { db } from '@/app/firebase';
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import {
-  MessagingEvent,
-  Event,
-  EventType,
-  Direction,
-  Conversation
-} from '@/types/instagram';
+  WebhookEntry,
+  Conversation,
+  Event
+} from '@/types/conversation';
 
 // This should be stored in environment variables
 const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
@@ -45,7 +43,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = JSON.parse(rawBody);
+    const body: { object: string; entry: WebhookEntry[] } = JSON.parse(rawBody);
 
     console.log(JSON.stringify(body));
 
@@ -63,11 +61,58 @@ export async function POST(request: NextRequest) {
 
       const uuid = querySnapshot.docs[0].id;
       const accessToken = querySnapshot.docs[0].data().instagram.accessToken;
-      // Handle messaging events
+
+
+      // Create a list of events from the entry
+      const events: Event[] = [];
+
+      if (entry.changes) {
+        for (const changeEvent of entry.changes) {
+          let description = '';
+          
+          // If this is a media-related event, fetch the caption
+          if (changeEvent.value?.media?.id && changeEvent.value?.text) {
+            const mediaDetails = await getMediaDetails(changeEvent.value.media.id, accessToken);
+            if (mediaDetails?.caption) {
+              description += "L'utilisateur a fait un commentaire sur une publication Instagram.";
+              description += `Description de la publication: ${mediaDetails.caption}`;
+              description += `Commentaire de l'utilisateur: ${changeEvent.value.text}`;
+            }
+          }
+
+          events.push({
+            date: entry.time,
+            type: changeEvent.field,
+            direction: 'received',
+            description: description,
+            event_details: {
+              comment: changeEvent.value
+            }
+          });
+        }
+      }
+
       if (entry.messaging) {
         for (const messagingEvent of entry.messaging) {
-          await processMessagingEvent(messagingEvent, entry.id, uuid, accessToken);
+          let description = '';
+
+          if (messagingEvent?.message?.text) {
+            description += messagingEvent.message.text;
+          }
+
+          events.push({
+            date: messagingEvent.timestamp,
+            type: messagingEvent?.message ? 'message' : messagingEvent?.reaction ? 'message_reactions' : messagingEvent?.postback ? 'messaging_postbacks' : messagingEvent?.referral ? 'messaging_referral' : 'messaging_seen',
+            direction: messagingEvent.sender.id === entry.id ? 'sent' : 'received',
+            description: description,
+            event_details: messagingEvent
+          });
         }
+      }
+
+      // Process events
+      for (const event of events) {
+        await processConversationEvent(uuid, entry.id, entry.id, event, accessToken);
       }
     }
 
@@ -78,92 +123,26 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function processMessagingEvent(messagingEvent: MessagingEvent, instagram_user_id: string, uuid: string, accessToken: string) {
-  // Validate required fields
-  if (!messagingEvent.sender?.id || !messagingEvent.recipient?.id || !messagingEvent.timestamp) {
-    console.error('Missing required fields in messaging event');
-    return;
-  }
-
-  const senderId = messagingEvent.sender.id;
-  const recipientId = messagingEvent.recipient.id;
-
-  let scopedUserId: string;
-  let direction: Direction;
-
-  if (senderId === instagram_user_id) {
-    scopedUserId = recipientId;
-    direction = 'sent';
-  } else {
-    scopedUserId = senderId;
-    direction = 'received';
-  }
-
-  let eventType: EventType;
-  let eventDetails: Record<string, unknown> & { id: string };
-
-  if (messagingEvent.message) {
-    eventType = 'message';
-    eventDetails = {
-      id: messagingEvent.message.mid,
-      text: messagingEvent.message.text || '',
-      attachments: messagingEvent.message.attachments || [],
-      is_echo: messagingEvent.message.is_echo || false
-    } as Record<string, unknown> & { id: string };
-  } else if (messagingEvent.reaction) {
-    eventType = 'message_reactions';
-    eventDetails = {
-      id: messagingEvent.reaction.mid,
-      action: messagingEvent.reaction.action || '',
-      reaction: messagingEvent.reaction.reaction || ''
-    } as Record<string, unknown> & { id: string };
-  } else if (messagingEvent.postback) {
-    eventType = 'messaging_postbacks';
-    eventDetails = {
-      id: messagingEvent.postback.mid,
-      payload: messagingEvent.postback.payload || '',
-      title: messagingEvent.postback.title || ''
-    } as Record<string, unknown> & { id: string };
-  } else if (messagingEvent.referral) {
-    eventType = 'messaging_referral';
-    eventDetails = {
-      id: `${messagingEvent.timestamp}_referral`,
-      ref: messagingEvent.referral.ref || '',
-      source: messagingEvent.referral.source || ''
-    } as Record<string, unknown> & { id: string };
-  } else {
-    console.log('Unsupported event type');
-    return;
-  }
-
-  const event: Event = {
-    date: messagingEvent.timestamp,
-    type: eventType,
-    direction,
-    event_details: eventDetails,
-  };
-
-  await processConversationEvent(uuid, instagram_user_id, scopedUserId, event, accessToken);
-}
-
-async function processConversationEvent(uuid: string, instagram_user_id: string, scopedUserId: string, event: Event, accessToken: string) {
-  const conversationId = `${instagram_user_id}_${scopedUserId}`;
+async function processConversationEvent(uuid: string, instagram_user_id: string, scoped_user_id: string, event: Event, accessToken: string) {
+  const conversationId = `${instagram_user_id}_${scoped_user_id}`;
   const conversationRef = doc(db, 'conversations', conversationId);
   const conversationDoc = await getDoc(conversationRef);
 
   if (!conversationDoc.exists()) {
 
-    const fetchInstagramProfile = await fetch(`https://graph.instagram.com/v22.0/${scopedUserId}?access_token=${accessToken}`);
+    const fetchInstagramProfile = await fetch(`https://graph.instagram.com/v22.0/${scoped_user_id}?access_token=${accessToken}`);
     const instagramProfile = await fetchInstagramProfile.json();
+    
     // Create new conversation
     const newConversation: Conversation = {
       uuid: uuid,
       created_at: Date.now(),
       updated_at: Date.now(),
       instagram_user_id: instagram_user_id,
-      scoped_user_id: scopedUserId,
+      scoped_user_id: scoped_user_id,
       scoped_user_username: instagramProfile.username,
-      status: 'sending_message',
+      scoped_user_bio: instagramProfile.biography || '',
+      status: ['message', 'messaging_postbacks', 'messaging_referral', 'messaging_optins', 'comments', 'live_comments'].includes(event.type) ? 'sending_message' : 'ignored',
       events: [event],
     };
 
@@ -173,7 +152,7 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
 
     // Check if conversation is ignored or event already exists
     if (conversation.status === 'ignored' ||
-      conversation.events.some(e => e.event_details.id === event.event_details.id)) {
+      conversation.events.some(e => e.event_details === event.event_details)) {
       return;
     }
 
@@ -187,7 +166,7 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
       if (event.direction === 'received') {
         updates.status = 'sending_message';
       } else {
-        if (event.event_details.is_echo) {
+        if (event.event_details.message?.is_echo) {
           updates.status = 'ignored';
         } else {
           updates.status = 'sending_message';
@@ -209,4 +188,18 @@ function verifySignature(payload: string, signature: string | null): boolean {
     .digest('hex');
 
   return `sha256=${expectedSignature}` === signature;
+}
+
+// Helper function to fetch media details
+async function getMediaDetails(mediaId: string, accessToken: string) {
+  try {
+    const response = await fetch(
+      `https://graph.instagram.com/v22.0/${mediaId}?fields=caption,media_url,permalink&access_token=${accessToken}`
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching media details:', error);
+    return null;
+  }
 }

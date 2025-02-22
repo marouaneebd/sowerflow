@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import OnboardingForm from '@/components/onboarding-form/OnboardingForm';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Conversation } from '@/types/instagram';
+import { Conversation } from '@/types/conversation';
 
 interface Analytics {
   conversations: Array<Conversation>;

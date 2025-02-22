@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/app/firebase';
 import { collection, query, where, orderBy, limit, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { ChatMessage, ChatRole } from '@/types/chat';
-import { Conversation, Event } from '@/types/instagram';
+import { Conversation, Event } from '@/types/conversation';
 import { generateAIResponse } from '@/lib/messageBuilder';
 
 export const dynamic = 'force-dynamic';

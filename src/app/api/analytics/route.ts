@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/app/firebase';
 import { verifyAuth } from '@/lib/auth';
-import { Conversation } from '@/types/instagram';
+import { Conversation } from '@/types/conversation';
 
 export async function GET(req: NextRequest) {
   try {
