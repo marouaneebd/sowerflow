@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import OnboardingForm from '@/components/onboarding-form/OnboardingForm';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Conversation } from '@/types/conversation';
 import { Profile } from '@/types/profile';
 import { Analytics } from '@/types/analytics';
 
@@ -20,9 +19,9 @@ export default function Home() {
   const checkProfileStatus = async () => {
     try {
       const res = await fetch('/api/profile');
-      const data: Profile = await res.json();
+      const profile: Profile = await res.json();
       
-      if (!data.onboarding_form || data.onboarding_form.status !== 'finished') {
+      if (!profile.onboarding_form || profile.onboarding_form.status !== 'finished') {
         setNeedsOnboarding(true);
         //setShowChat(false);
       } else {
@@ -39,8 +38,8 @@ export default function Home() {
   const fetchAnalytics = async () => {
     try {
       const res = await fetch('/api/analytics');
-      const data: Analytics = await res.json();
-      setAnalytics(data);
+      const analyticsData: Analytics = await res.json();
+      setAnalytics(analyticsData);
     } catch (error) {
       console.error('Error fetching analytics:', error);
     }
