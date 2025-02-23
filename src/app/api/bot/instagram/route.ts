@@ -54,7 +54,7 @@ export async function GET(req: Request) {
       .filter(event => !!event.description)
       .map(event => ({ 
         id: event.date.toString(),
-        role: (event.direction === 'received' ? 'user' : 'assistant') as ChatRole,
+        role: (event.direction === 'received' && event.type !== 'comments' && event.type !== 'live_comments' ? 'user' : 'assistant') as ChatRole,
         content: event.description
       }))
       .sort((a, b) => {
