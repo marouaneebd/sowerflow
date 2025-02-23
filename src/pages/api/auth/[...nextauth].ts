@@ -73,7 +73,8 @@ export const authOptions: NextAuthOptions = {
             if (subscriptions.data.length === 0) {
               const sub = await stripe.subscriptions.create({
                 customer: stripeCustomerId,
-                items: [{ price: 'price_1Qj0cAIHyU82otGEuK5DNLDN' }]
+                items: [{ price: 'price_1Qj0cAIHyU82otGEuK5DNLDN' }],
+                trial_period_days: 3, // Set the trial period to 3 days
               });
               await stripe.subscriptions.update(
                 sub.id,
