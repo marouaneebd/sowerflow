@@ -62,14 +62,19 @@ export async function POST(request: NextRequest) {
       const uuid = querySnapshot.docs[0].id;
       const accessToken = querySnapshot.docs[0].data().instagram.accessToken;
 
-
-      // Create a list of events from the entry
-      const events: Event[] = [];
-
+      // Process change events
       if (entry.changes) {
         for (const changeEvent of entry.changes) {
+          // Get the scoped_user_id from the from.id for changes
+          const scoped_user_id = changeEvent.value?.from?.id;
+
+          if (!scoped_user_id) {
+            console.error(`No scoped_user_id found for change event: ${JSON.stringify(changeEvent)}`);
+            continue;
+          }
+
           let description = '';
-          
+
           // If this is a media-related event, fetch the caption
           if (changeEvent.value?.media?.id && changeEvent.value?.text) {
             const mediaDetails = await getMediaDetails(changeEvent.value.media.id, accessToken);
@@ -80,7 +85,7 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          events.push({
+          const event: Event = {
             date: entry.time,
             type: changeEvent.field,
             direction: 'received',
@@ -88,31 +93,40 @@ export async function POST(request: NextRequest) {
             event_details: {
               comment: changeEvent.value
             }
-          });
+          };
+
+          await processConversationEvent(uuid, entry.id, scoped_user_id, event, accessToken);
         }
       }
 
+      // Process messaging events
       if (entry.messaging) {
         for (const messagingEvent of entry.messaging) {
           let description = '';
+          // Get the scoped_user_id as the other party in the conversation
+          const scoped_user_id = messagingEvent.sender.id === entry.id
+            ? messagingEvent.recipient.id
+            : messagingEvent.sender.id;
+
+          if (!scoped_user_id) {
+            console.error(`No scoped_user_id found for messaging event: ${JSON.stringify(messagingEvent)}`);
+            continue;
+          }
 
           if (messagingEvent?.message?.text) {
             description += messagingEvent.message.text;
           }
 
-          events.push({
+          const event: Event = {
             date: messagingEvent.timestamp,
             type: messagingEvent?.message ? 'message' : messagingEvent?.reaction ? 'message_reactions' : messagingEvent?.postback ? 'messaging_postbacks' : messagingEvent?.referral ? 'messaging_referral' : 'messaging_seen',
             direction: messagingEvent.sender.id === entry.id ? 'sent' : 'received',
             description: description,
             event_details: messagingEvent
-          });
-        }
-      }
+          };
 
-      // Process events
-      for (const event of events) {
-        await processConversationEvent(uuid, entry.id, entry.id, event, accessToken);
+          await processConversationEvent(uuid, entry.id, scoped_user_id, event, accessToken);
+        }
       }
     }
 
@@ -132,7 +146,7 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
 
     const fetchInstagramProfile = await fetch(`https://graph.instagram.com/v22.0/${scoped_user_id}?access_token=${accessToken}`);
     const instagramProfile = await fetchInstagramProfile.json();
-    
+
     // Create new conversation
     const newConversation: Conversation = {
       uuid: uuid,
