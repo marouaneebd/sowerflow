@@ -21,16 +21,7 @@ export async function GET(req: NextRequest) {
     // Process each conversation
     querySnapshot.forEach((doc) => {
       const conversationData = doc.data();
-      const conversation: Conversation = {
-        uuid: uid,
-        created_at: conversationData.created_at,
-        updated_at: conversationData.updated_at,
-        instagram_user_id: conversationData.instagram_user_id,
-        scoped_user_id: conversationData.scoped_user_id,
-        scoped_user_username: conversationData.scoped_user_username,
-        status: conversationData.status,
-        events: conversationData.events
-      };
+      const conversation: Conversation = conversationData as Conversation;
       
       conversations.push(conversation);
       totalConversations++;

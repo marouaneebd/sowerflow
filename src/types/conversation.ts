@@ -127,6 +127,5 @@ export interface CommentingEvent {
   };
 }
 
-export interface InstagramCommentEvent extends CommentingEvent {}
-
-export interface InstagramLiveCommentEvent extends CommentingEvent {}
+export type InstagramCommentEvent = CommentingEvent;
+export type InstagramLiveCommentEvent = CommentingEvent;

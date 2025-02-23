@@ -51,11 +51,11 @@ export async function GET(req: Request) {
 
     // Convert events to chat messages
     const messages: ChatMessage[] = conversation.events
-      .filter(event => event.type === 'message')
-      .map(event => ({
+      .filter(event => !!event.description)
+      .map(event => ({ 
         id: event.date.toString(),
         role: (event.direction === 'received' ? 'user' : 'assistant') as ChatRole,
-        content: event.event_details.text as string
+        content: event.description
       }))
       .sort((a, b) => {
         const eventA = conversation.events.find(e => e.date.toString() === a.id);
@@ -94,10 +94,13 @@ export async function GET(req: Request) {
       date: Date.now(),
       type: 'message',
       direction: 'sent',
+      description: aiResponse,
       event_details: {
-        id: instagramData.message_id,
-        text: aiResponse,
-        is_echo: false
+        message: {
+          mid: instagramData.id,
+          text: aiResponse,
+          is_echo: false
+        }
       }
     };
 
