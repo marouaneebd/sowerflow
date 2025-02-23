@@ -45,7 +45,7 @@ export async function initializeProfile(stripeCustomerId: string, uid: string, e
           plan: 'trial',
           stripe_customer_id: stripeCustomerId,
           credits_used: 0,
-          subscription_end_date: new Date(new Date().setHours(0, 0, 0, 0))
+          end_date: new Date(new Date().setHours(0, 0, 0, 0))
         }
       });
     }
