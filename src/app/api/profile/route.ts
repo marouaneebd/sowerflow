@@ -8,19 +8,16 @@ import { Profile } from '@/types/profile';
 export async function GET(req: NextRequest) {
   try {
     const { uid, email } = await verifyAuth(req);
-    const docRef = doc(db, 'profiles', uid);
-    const docSnap = await getDoc(docRef);
+    const profileRef = doc(db, 'profiles', uid);
+    const profileSnap = await getDoc(profileRef);
 
-    if (!docSnap.exists()) {
+    if (!profileSnap.exists()) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    const profileData = docSnap.data();
+    const profile = profileSnap.data() as Profile;
 
-    return NextResponse.json({
-      ...profileData,
-      email
-    });
+    return NextResponse.json(profile);
 
   } catch (error) {
     console.error('Error in GET /api/profile:', error);
@@ -43,14 +40,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
     }
 
-    const docRef = doc(db, 'profiles', uid);
-    const docSnap = await getDoc(docRef);
+    const profileRef = doc(db, 'profiles', uid);
+    const profileSnap = await getDoc(profileRef);
 
     const timestamp = new Date().toISOString();
     const profileUpdate: Partial<Profile> = {
       onboarding_form: formData,
       updated_at: timestamp,
-      ...((!docSnap.exists()) && {
+      ...((!profileSnap.exists()) && {
         created_at: timestamp,
         subscription: {
           plan: 'trial'
@@ -58,13 +55,13 @@ export async function POST(req: NextRequest) {
       })
     };
 
-    await (docSnap.exists()
-      ? updateDoc(docRef, profileUpdate)
-      : setDoc(docRef, profileUpdate)
+    await (profileSnap.exists()
+      ? updateDoc(profileRef, profileUpdate)
+      : setDoc(profileRef, profileUpdate)
     );
 
     return NextResponse.json({
-      message: `Profile ${docSnap.exists() ? 'updated' : 'created'} successfully`,
+      message: `Profile ${profileSnap.exists() ? 'updated' : 'created'} successfully`,
       timestamp
     });
 

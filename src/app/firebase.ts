@@ -29,7 +29,7 @@ setPersistence(auth, browserLocalPersistence)
   });
 
 
-export async function initializeProfile(stripeCustomerId: string, uid: string): Promise<void> {
+export async function initializeProfile(stripeCustomerId: string, uid: string, email: string): Promise<void> {
   try {
     const db = getFirestore();
     const profileRef = doc(db, "profiles", uid); // Reference to the document in the 'profiles' collection
@@ -39,7 +39,9 @@ export async function initializeProfile(stripeCustomerId: string, uid: string): 
 
     if (!profileSnap.exists()) {
       await setDoc(profileRef, {
+        email: email,
         subscription: {
+          plan: 'trial',
           stripe_customer_id: stripeCustomerId,
           credits_used: 0,
           subscription_end_date: new Date(new Date().setHours(0, 0, 0, 0))

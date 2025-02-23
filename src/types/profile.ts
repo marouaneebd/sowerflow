@@ -29,6 +29,7 @@ export interface Profile {
   created_at?: string;
   updated_at?: string;
   uuid: string;
+  email: string;
   onboarding_form?: OnboardingForm;
   instagram?: InstagramProfile;
   subscription?: Subscription;

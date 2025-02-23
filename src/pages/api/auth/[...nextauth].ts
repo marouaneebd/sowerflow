@@ -61,7 +61,7 @@ export const authOptions: NextAuthOptions = {
                 email: user.email
               });
               stripeCustomerId = stripeCustomer.id;
-              await initializeProfile(stripeCustomerId, user.uid);
+              await initializeProfile(stripeCustomerId, user.uid, user.email);
             }
 
             // Create subscription with 3-day trial if the customer doesn't have an active subscription
@@ -136,7 +136,7 @@ export const authOptions: NextAuthOptions = {
       });
 
       // Save Stripe customer ID in Firestore
-      await initializeProfile(stripeCustomer.id, userId);
+      await initializeProfile(stripeCustomer.id, userId, email);
     }
   }
 };

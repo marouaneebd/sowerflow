@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import type { FormData } from '../OnboardingForm'
+import { Profile } from '@/types/profile'
 
 interface InstagramStepProps {
   instagram: string
@@ -23,17 +24,19 @@ export default function InstagramStep({ instagram, instagramBio, updateFormData 
     const checkInstagramConnection = async () => {
       try {
         const response = await fetch('/api/profile')
-        const data = await response.json()
+        const profile = await response.json() as Profile;
+
+
         
-        if (data.instagram?.username) {
+        if (profile.instagram?.username) {
           // Check if token is expired
-          const tokenExpires = new Date(data.instagram.tokenExpires)
+          const tokenExpires = new Date(profile.instagram.token_expires)
           const now = new Date()
           
           if (tokenExpires > now) {
             setIsConnected(true)
-            updateFormData('instagram', data.instagram.username)
-            updateFormData('instagramBio', data.instagram.biography)
+            updateFormData('instagram', profile.instagram.username)
+            updateFormData('instagramBio', profile.instagram.biography)
           } else {
             // Token is expired, reset connection state
             setIsConnected(false)
