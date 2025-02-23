@@ -5,8 +5,10 @@ import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } fro
 import {
   WebhookEntry,
   Conversation,
+  ConversationStatus,
   Event
 } from '@/types/conversation';
+import { Media } from '@/types/media';
 
 // This should be stored in environment variables
 const VERIFY_TOKEN = process.env.INSTAGRAM_VERIFY_TOKEN;
@@ -77,8 +79,13 @@ export async function POST(request: NextRequest) {
 
           // If this is a media-related event, fetch the caption
           if (changeEvent.value?.media?.id && changeEvent.value?.text) {
-            const mediaDetails = await getMediaDetails(changeEvent.value.media.id, accessToken);
-            if (mediaDetails?.caption) {
+            const mediaDetails = await getMediaDetails(
+              changeEvent.value.media.id,
+              accessToken,
+              uuid,
+              entry.id // instagram_user_id
+            ) as Media;
+            if (mediaDetails.caption) {
               description += "L'utilisateur a fait un commentaire sur une publication Instagram.";
               description += `Description de la publication: ${mediaDetails.caption}`;
               description += `Commentaire de l'utilisateur: ${changeEvent.value.text}`;
@@ -147,6 +154,11 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
     const fetchInstagramProfile = await fetch(`https://graph.instagram.com/v22.0/${scoped_user_id}?access_token=${accessToken}`);
     const instagramProfile = await fetchInstagramProfile.json();
 
+    let status: ConversationStatus = 'ignored';
+    if (event.direction === 'received' && ['message', 'messaging_postbacks', 'messaging_referral', 'messaging_optins', 'comments', 'live_comments'].includes(event.type)) {
+      status = 'sending_message';
+    }
+
     // Create new conversation
     const newConversation: Conversation = {
       uuid: uuid,
@@ -156,7 +168,7 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
       scoped_user_id: scoped_user_id,
       scoped_user_username: instagramProfile.username,
       scoped_user_bio: instagramProfile.biography || '',
-      status: ['message', 'messaging_postbacks', 'messaging_referral', 'messaging_optins', 'comments', 'live_comments'].includes(event.type) ? 'sending_message' : 'ignored',
+      status: status,
       events: [event],
     };
 
@@ -205,15 +217,48 @@ function verifySignature(payload: string, signature: string | null): boolean {
 }
 
 // Helper function to fetch media details
-async function getMediaDetails(mediaId: string, accessToken: string) {
+async function getMediaDetails(mediaId: string, accessToken: string, uuid: string, instagram_user_id: string) {
+  const media_document_id = `${instagram_user_id}_${mediaId}`;
   try {
+    // First check if media exists in Firebase
+    const mediaRef = doc(db, 'medias', media_document_id);
+    const mediaDoc = await getDoc(mediaRef);
+
+    if (mediaDoc.exists()) {
+      return mediaDoc.data() as Media;
+    }
+
+    // If not found in Firebase, fetch from Instagram API
     const response = await fetch(
-      `https://graph.instagram.com/v22.0/${mediaId}?fields=caption,media_url,permalink&access_token=${accessToken}`
+      `https://graph.instagram.com/v22.0/${mediaId}?fields=caption,media_url,permalink,media_product_type,timestamp&access_token=${accessToken}`
     );
     const data = await response.json();
-    return data;
+
+    if (!data || data.error) {
+      console.error('Error fetching from Instagram API:', data.error);
+      return null;
+    }
+
+    // Create new media object
+    const newMedia: Media = {
+      id: mediaId,
+      uuid: uuid,
+      instagram_user_id: data.owner?.id,
+      created_at: Date.now(),
+      updated_at: Date.now(),
+      media_product_type: data.media_product_type,
+      caption: data.caption || '',
+      media_url: data.media_url || '',
+      permalink: data.permalink || '',
+      timestamp: new Date(data.timestamp).getTime()
+    };
+
+    // Store in Firebase
+    await setDoc(mediaRef, newMedia);
+
+    return newMedia as Media;
   } catch (error) {
-    console.error('Error fetching media details:', error);
+    console.error('Error in getMediaDetails:', error);
     return null;
   }
 }

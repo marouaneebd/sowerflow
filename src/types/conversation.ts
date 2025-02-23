@@ -30,6 +30,8 @@ export interface Conversation {
   scoped_user_id: string;
   scoped_user_username: string;
   scoped_user_bio: string;
+  abandon_reason?: string;
+  setted_reason?: string;
   status: ConversationStatus;
   events: Event[];
 }

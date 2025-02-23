@@ -7,7 +7,7 @@ export interface Media {
     created_at: number;
     updated_at: number;
     media_product_type: MediaProductType;
-    description: string;
+    caption: string;
     media_url: string;
     permalink: string;
     timestamp: number;
