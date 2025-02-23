@@ -3,12 +3,7 @@ import { db } from '@/app/firebase';
 import { doc, getDocs, updateDoc, query, collection, where } from 'firebase/firestore';
 import Stripe from 'stripe';
 import { NextRequest, NextResponse } from 'next/server';
-
-const price_ids = {
-  "assisted": "price_1QAd6oIHyU82otGEokYNDgA9",
-  "augmented": "price_1QAd7YIHyU82otGEMpJENleQ",
-  "automated": "price_1QAdGWIHyU82otGElKnoIXcR"
-};
+import { Profile } from '@/types/profile';
 
 export async function POST(req: NextRequest) {
   let event: Stripe.Event;
@@ -24,67 +19,43 @@ export async function POST(req: NextRequest) {
 
   const subscription = event.data.object as Stripe.Subscription;
   const customerId = subscription.customer as string;
-  const isTrial = subscription.status === 'trialing'; // Trial status
-  const isActive = subscription.status === 'active' || subscription.status === 'trialing'; // Active status
   const subscriptionEndDate = new Date(subscription.current_period_end * 1000); // Subscription end date (timestamp to Date object)
 
 
   try {
     const profilesRef = collection(db, 'profiles');
-    const q = query(profilesRef, where('stripeCustomerId', '==', customerId));
-    const querySnapshot = await getDocs(q);
+    const q = query(profilesRef, where('stripe_customer_id', '==', customerId));
+    const profileSnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
+    if (profileSnapshot.empty) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    for (const document of querySnapshot.docs) {
-      const docRef = doc(db, 'profiles', document.id);
+    const profile = profileSnapshot.docs[0].data() as Profile;
+    const profileDocRef = doc(db, 'profiles', profile.uuid);
 
-      if (event.type === 'customer.subscription.deleted') {
-        // If the subscription is deleted, deactivate the user's subscription
-        await updateDoc(docRef, {
-          isActive: false,
-          isTrial: false
-        });
-        return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
-      } else if (event.type === 'invoice.payment_failed') {
-        // If a payment fails, deactivate the user's subscription
-        await updateDoc(docRef, {
-          isActive: false
-        });
-        return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
-      } else if (event.type === 'invoice.payment_succeeded') {
-        // If a payment succeeds, ensure the user is marked as active and not in trial
-        await updateDoc(docRef, {
-          isActive: true,
-          isTrial: false
-        });
-        return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
-      }
-
-      const priceId = subscription.items.data[0].price.id;
-
-      if (!priceId) {
-        return NextResponse.json({ error: 'Price ID note found' }, { status: 400 });
-      }
-
-      const plan = (Object.keys(price_ids) as Array<keyof typeof price_ids>).find(key => price_ids[key] === priceId) || null;
-
-      if (!plan) {
-        return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
-      }
-
-      if (event.type === 'customer.subscription.updated') {
-        await updateDoc(docRef, {
-          plan,
-          isTrial,
-          isActive,
-          subscriptionEndDate // Set subscription end date
-        });
-        return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
-      }
+    if (event.type === 'customer.subscription.deleted') {
+      // If the subscription is deleted, deactivate the user's subscription
+      await updateDoc(profileDocRef, {
+        is_active: false,
+        subscription_end_date: null
+      });
+      return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
+    } else if (event.type === 'invoice.payment_failed') {
+      // If a payment fails, deactivate the user's subscription
+      await updateDoc(profileDocRef, {
+        is_active: false
+      });
+      return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
+    } else if (event.type === 'invoice.payment_succeeded') {
+      // If a payment succeeds, ensure the user is marked as active and not in trial
+      await updateDoc(profileDocRef, {
+        is_active: true,
+        subscription_end_date: subscriptionEndDate
+      });
+      return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
     }
+
     return NextResponse.json({ message: 'No update detected' }, { status: 400 });
   } catch (error) {
     console.error('Error updating profile:', error);

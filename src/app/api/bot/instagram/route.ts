@@ -4,6 +4,7 @@ import { collection, query, where, orderBy, limit, getDocs, updateDoc, doc } fro
 import { ChatMessage, ChatRole } from '@/types/chat';
 import { Conversation, Event } from '@/types/conversation';
 import { generateAIResponse } from '@/lib/messageBuilder';
+import { Profile } from '@/types/profile';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -47,7 +48,21 @@ export async function GET(req: Request) {
       throw new Error('Profile not found');
     }
 
-    const profile = profileSnapshot.docs[0].data();
+    const profile = profileSnapshot.docs[0].data() as Profile;
+
+    // Skip if profile is not active
+    if (!profile.is_active) {
+      // Update conversation status to 'error' to prevent it from being processed again
+      await updateDoc(doc(db, 'conversations', conversationDoc.id), {
+        status: 'waiting_payment',
+        updated_at: Date.now()
+      });
+      
+      return NextResponse.json({ 
+        message: 'Skipped inactive profile',
+        conversation_id: conversationDoc.id 
+      });
+    }
 
     // Convert events to chat messages
     const messages: ChatMessage[] = conversation.events
@@ -70,7 +85,7 @@ export async function GET(req: Request) {
     const instagramResponse = await fetch(`https://graph.instagram.com/v22.0/${conversation.instagram_user_id}/messages`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${profile.instagram.accessToken}`,
+        'Authorization': `Bearer ${profile.instagram?.access_token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -87,7 +102,7 @@ export async function GET(req: Request) {
       throw new Error('Failed to send Instagram message');
     }
 
-    const instagramData = await instagramResponse.json();
+    const instagramMessageData = await instagramResponse.json();
 
     // Create new event for the sent message
     const newEvent: Event = {
@@ -97,7 +112,7 @@ export async function GET(req: Request) {
       description: aiResponse,
       event_details: {
         message: {
-          mid: instagramData.id,
+          mid: instagramMessageData.id,
           text: aiResponse,
           is_echo: false
         }

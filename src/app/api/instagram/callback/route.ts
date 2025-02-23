@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '@/app/firebase'
 import { verifyAuth } from '@/lib/auth'
-import { InstagramProfile } from '@/types/profile'
+import { InstagramProfile, Profile } from '@/types/profile'
 
 const INSTAGRAM_CLIENT_ID = process.env.INSTAGRAM_CLIENT_ID
 const INSTAGRAM_CLIENT_SECRET = process.env.INSTAGRAM_CLIENT_SECRET
@@ -32,33 +32,40 @@ export async function POST(request: Request) {
     const { code } = await request.json()
 
     // Check if user already has a token that needs refresh
-    const userDocRef = doc(db, 'profiles', uid)
-    const userDoc = await getDoc(userDocRef)
-    
-    if (userDoc.exists() && userDoc.data().instagram?.accessToken) {
-      const tokenExpires = new Date(userDoc.data().instagram.tokenExpires)
+    const profileRef = doc(db, 'profiles', uid)
+    const profileData = await getDoc(profileRef);
+
+    if (profileData.exists()) {
+      const profile: Profile = profileData.data() as Profile;
+      if (!profile?.instagram?.access_token || !profile?.instagram?.token_expires) {
+        return NextResponse.json({
+          success: false,
+          error: 'No Instagram access token or token expiration date found'
+        })
+      }
+      const token_expires = new Date(profile.instagram.token_expires)
       const now = new Date()
       
       // If token expires in less than 24 hours, refresh it
-      if (tokenExpires < new Date(now.getTime() + 24 * 60 * 60 * 1000)) {
+      if (token_expires < new Date(now.getTime() + 24 * 60 * 60 * 1000)) {
         try {
           const { access_token, expires_in } = await refreshInstagramToken(
-            userDoc.data().instagram.accessToken
+            profile.instagram.access_token
           )
           
-          await updateDoc(userDocRef, {
+          await updateDoc(profileRef, {
             instagram: {
-              ...userDoc.data().instagram,
-              accessToken: access_token,
-              tokenExpires: new Date(Date.now() + expires_in * 1000).toISOString(),
-              lastUpdated: new Date().toISOString()
+              ...profile.instagram,
+              access_token: access_token,
+              token_expires: new Date(Date.now() + expires_in * 1000).toISOString(),
+              updated_at: new Date().toISOString()
             }
           })
           
           return NextResponse.json({
             success: true,
-            username: userDoc.data().instagram.username,
-            userId: userDoc.data().instagram.userId
+            username: profile.instagram.username,
+            userId: profile.instagram.userId
           })
         } catch (error) {
           console.error('Error refreshing token:', error)
@@ -68,8 +75,8 @@ export async function POST(request: Request) {
         // Token is still valid
         return NextResponse.json({
           success: true,
-          username: userDoc.data().instagram.username,
-          userId: userDoc.data().instagram.userId,
+          username: profile.instagram.username,
+          userId: profile.instagram.userId,
         })
       }
     }
@@ -93,7 +100,7 @@ export async function POST(request: Request) {
       `https://graph.instagram.com/me?fields=user_id,username,biography&access_token=${access_token}`
     )
 
-    const userData = await userResponse.json()
+    const instagramUserData = await userResponse.json()
 
     // Get long-lived access token
     const longLivedTokenResponse = await fetch(
@@ -104,25 +111,25 @@ export async function POST(request: Request) {
 
     // Store Instagram data in user's profile
     const instagramData: InstagramProfile = {
-      username: userData.username,
-      userId: userData.user_id,
-      biography: userData.biography,
+      username: instagramUserData.username,
+      userId: instagramUserData.user_id,
+      biography: instagramUserData.biography,
       permissions: permissions,
-      accessToken: longLivedToken,
-      tokenExpires: new Date(Date.now() + expires_in * 1000).toISOString(),
-      lastUpdated: new Date().toISOString()
+      access_token: longLivedToken,
+      token_expires: new Date(Date.now() + expires_in * 1000).toISOString(),
+      updated_at: new Date().toISOString()
     };
 
-    await updateDoc(userDocRef, {
+    await updateDoc(profileRef, {
       instagram: instagramData
     });
 
     return NextResponse.json({
       success: true,
-      username: userData.username,
-      userId: userData.user_id,
+      username: instagramUserData.username,
+      userId: instagramUserData.user_id,
       permissions: permissions,
-      biography: userData.biography,
+      biography: instagramUserData.biography,
     })
   } catch (error) {
     console.error('Instagram OAuth Error:', error)

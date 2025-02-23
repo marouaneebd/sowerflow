@@ -2,6 +2,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/app/firebase';
 import { verifyAuth } from '@/lib/auth';
 import { generateAIResponse } from "@/lib/messageBuilder";
+import { Profile } from '@/types/profile';
 
 export const maxDuration = 30
 export const dynamic = "force-dynamic"
@@ -17,8 +18,15 @@ export async function POST(req: Request) {
     // Only get user profile for regular users
     const docRef = doc(db, 'profiles', auth.uid);
     const docSnap = await getDoc(docRef);
-    const profileData = docSnap.exists() ? docSnap.data() : null;
-    
+    const profileData = docSnap.exists() ? docSnap.data() as Profile : null;
+
+    // Check if profile exists
+    if (!profileData) {
+      return new Response(JSON.stringify({ error: 'Profile not found' }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
 
     const text = await generateAIResponse(profileData, messages);
 

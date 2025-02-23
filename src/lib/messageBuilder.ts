@@ -1,7 +1,7 @@
 import { ChatMessage } from "@/types/chat";
 import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
-import { ProfileData } from "@/types/profile";
+import { Profile } from "@/types/profile";
 import { z } from "zod";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/app/firebase";
@@ -50,11 +50,11 @@ const availableTools = {
   }
 } as const;
 
-export function buildDeveloperMessage(profileData: ProfileData | null): ChatMessage {
+export function buildDeveloperMessage(profileData: Profile | null): ChatMessage {
   let developerMessageContent = "Tu es un instagramer qui contacte ses followers sur Instagram et tu es un expert dans le domaine de la vente. Tu parles uniquement en français sur un ton détendu et tu n'utilises pas beaucoup d'emojis. Tu privilégies des messages courts et concis. Tu dois chercher à comprendre le profil de la personne et amener naturellement la conversation vers une compréhension de ses besoins pour au final lui faire prendre rendez-vous avec toi via ton lien de prise de rendez-vous. Ne lui envoie le lien de prise qu'une fois qu'il a accepté de prendre rendez-vous. Fait en sorte d'amener le sujet de la vente de manière naturelle et sans être trop direct. Voici les informations concernant l'instagramer dont tu as besoin :";
 
-  if (profileData?.onboardingForm) {
-    const form = profileData.onboardingForm;
+  if (profileData?.onboarding_form) {
+    const form = profileData.onboarding_form;
     
     if (form.product) {
       developerMessageContent += `\n- Service proposé: ${form.product}`;
@@ -71,8 +71,8 @@ export function buildDeveloperMessage(profileData: ProfileData | null): ChatMess
       });
     }
 
-    if (form.callInfo) {
-      developerMessageContent += `\n- Avant de prendre rendez-vous, l'instagramer doit avoir les informations suivantes: ${form.callInfo}`;
+    if (form.call_info) {
+      developerMessageContent += `\n- Avant de prendre rendez-vous, l'instagramer doit avoir les informations suivantes: ${form.call_info}`;
     }
     
     if (form.calendly) {
@@ -88,7 +88,7 @@ export function buildDeveloperMessage(profileData: ProfileData | null): ChatMess
 }
 
 export async function generateAIResponse(
-  profileData: ProfileData | null, 
+  profileData: Profile, 
   messages: ChatMessage[],
   conversationId?: string
 ): Promise<string> {

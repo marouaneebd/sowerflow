@@ -8,6 +8,7 @@ import {
   ConversationStatus,
   Event
 } from '@/types/conversation';
+import { Profile } from '@/types/profile';
 import { Media } from '@/types/media';
 
 // This should be stored in environment variables
@@ -54,15 +55,26 @@ export async function POST(request: NextRequest) {
       // Find the user UID from profiles collection
       const profilesRef = collection(db, 'profiles');
       const q = query(profilesRef, where('instagram.userId', '==', entry.id));
-      const querySnapshot = await getDocs(q);
+      const profileSnapshot = await getDocs(q);
 
-      if (querySnapshot.empty) {
+      if (profileSnapshot.empty) {
         console.error(`No user found for Instagram ID: ${entry.id}`);
         continue;
       }
 
-      const uuid = querySnapshot.docs[0].id;
-      const accessToken = querySnapshot.docs[0].data().instagram.accessToken;
+      const profile: Profile = profileSnapshot.docs[0].data() as Profile;
+      const uuid = profile.uuid;
+      const accessToken = profile.instagram?.access_token;
+
+      if (!accessToken) {
+        console.log(`No access token found for Instagram ID: ${entry.id}`);
+        continue;
+      }
+
+      if (!profile.is_active) {
+        console.log(`Profile is not active for Instagram ID: ${entry.id}`);
+        continue;
+      }
 
       // Process change events
       if (entry.changes) {

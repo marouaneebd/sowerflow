@@ -1,6 +1,6 @@
 export type EventType = 'message' | 'message_reactions' | 'messaging_referral' | 'messaging_optins' | 'messaging_postbacks' | 'messaging_seen' | 'comments' | 'live_comments';
 export type Direction = 'sent' | 'received';
-export type ConversationStatus = 'sending_message' | 'waiting_message' | 'setted' | 'abandoned' | 'ignored';
+export type ConversationStatus = 'sending_message' | 'waiting_message' | 'setted' | 'abandoned' | 'ignored' | 'waiting_payment';
 
 
 export interface WebhookEntry {

@@ -3,23 +3,29 @@ export interface InstagramProfile {
   userId: string;
   biography?: string;
   permissions?: string[];
-  accessToken: string;
-  tokenExpires: string;
-  lastUpdated: string;
+  access_token: string;
+  token_expires: string;
+  updated_at: string;
 }
 
 export interface OnboardingForm {
   product?: string;
   offer?: string;
   pricing?: Array<{ name: string; price: number }>;
-  callInfo?: string;
+  call_info?: string;
   calendly?: string;
+  status?: 'pending' | 'finished';
 }
 
-export interface ProfileData {
-  onboardingForm?: OnboardingForm;
+export interface Profile {
+  uuid: string;
+  onboarding_form?: OnboardingForm;
   instagram?: InstagramProfile;
-  plan?: 'free' | 'pro' | 'enterprise';
-  createdAt?: string;
-  lastUpdated?: string;
+  plan?: 'trial' | 'standard';
+  created_at?: string;
+  updated_at?: string;
+  stripe_customer_id?: string;
+  subscription_end_date?: string;
+  is_active?: boolean;
+  credits_used?: number;
 }
