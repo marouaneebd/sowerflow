@@ -1,6 +1,7 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth, setPersistence, browserLocalPersistence, sendPasswordResetEmail } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { Profile } from "@/types/profile";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -31,16 +32,18 @@ setPersistence(auth, browserLocalPersistence)
 export async function initializeProfile(stripeCustomerId: string, uid: string): Promise<void> {
   try {
     const db = getFirestore();
-    const docRef = doc(db, "profiles", uid); // Reference to the document in the 'profiles' collection
+    const profileRef = doc(db, "profiles", uid); // Reference to the document in the 'profiles' collection
 
     // Get the current document
-    const docSnap = await getDoc(docRef);
+    const profileSnap = await getDoc(profileRef);
 
-    if (!docSnap.exists()) {
-      await setDoc(docRef, {
-        stripeCustomerId: stripeCustomerId,
-        creditsUsed: 0,
-        dateCreditsRefreshed: new Date(new Date().setHours(0, 0, 0, 0))
+    if (!profileSnap.exists()) {
+      await setDoc(profileRef, {
+        subscription: {
+          stripe_customer_id: stripeCustomerId,
+          credits_used: 0,
+          subscription_end_date: new Date(new Date().setHours(0, 0, 0, 0))
+        }
       });
     }
     console.log("Document successfully written!");
@@ -52,15 +55,15 @@ export async function initializeProfile(stripeCustomerId: string, uid: string): 
 export async function getStripeCustomerId(uid: string): Promise<string | null> {
   try {
     // Reference to the user's document in the 'profiles' collection
-    const docRef = doc(db, "profiles", uid);
-    const docSnap = await getDoc(docRef);
+    const profileRef = doc(db, "profiles", uid);
+    const profileSnap = await getDoc(profileRef);
 
     // Check if the document exists
-    if (docSnap.exists()) {
-      const data = docSnap.data();
+    if (profileSnap.exists()) {
+      const profile = profileSnap.data() as Profile;
 
       // Return the stripeCustomerId if it exists
-      return data?.stripeCustomerId || null;
+      return profile.subscription?.stripe_customer_id || null;
     } else {
       console.log("No such document!");
       return null;

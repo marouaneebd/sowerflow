@@ -17,15 +17,19 @@ export interface OnboardingForm {
   status?: 'pending' | 'finished';
 }
 
+export interface Subscription {
+  plan?: 'trial' | 'standard';
+  end_date?: string;
+  is_active?: boolean;
+  credits_used?: number;
+  stripe_customer_id?: string;
+}
+
 export interface Profile {
+  created_at?: string;
+  updated_at?: string;
   uuid: string;
   onboarding_form?: OnboardingForm;
   instagram?: InstagramProfile;
-  plan?: 'trial' | 'standard';
-  created_at?: string;
-  updated_at?: string;
-  stripe_customer_id?: string;
-  subscription_end_date?: string;
-  is_active?: boolean;
-  credits_used?: number;
+  subscription?: Subscription;
 }

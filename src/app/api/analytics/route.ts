@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     // Get all conversations for the user
     const conversationsRef = collection(db, 'conversations');
     const q = query(conversationsRef, where('uuid', '==', uid));
-    const querySnapshot = await getDocs(q);
+    const conversationsSnapshot = await getDocs(q);
 
     // Initialize counters
     let totalConversations = 0;
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const conversations: Conversation[] = [];
 
     // Process each conversation
-    querySnapshot.forEach((doc) => {
+    conversationsSnapshot.forEach((doc) => {
       const conversationData = doc.data();
       const conversation: Conversation = conversationData as Conversation;
       

@@ -51,7 +51,7 @@ export async function GET(req: Request) {
     const profile = profileSnapshot.docs[0].data() as Profile;
 
     // Skip if profile is not active
-    if (!profile.is_active) {
+    if (!profile.subscription?.is_active) {
       // Update conversation status to 'error' to prevent it from being processed again
       await updateDoc(doc(db, 'conversations', conversationDoc.id), {
         status: 'waiting_payment',

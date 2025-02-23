@@ -35,9 +35,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { uid } = await verifyAuth(req);
-    
+
     const formData = await req.json();
-    
+
     // Validate form data
     if (!formData || typeof formData !== 'object') {
       return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
@@ -50,20 +50,22 @@ export async function POST(req: NextRequest) {
     const profileUpdate: Partial<Profile> = {
       onboarding_form: formData,
       updated_at: timestamp,
-      ...((!docSnap.exists()) && { 
+      ...((!docSnap.exists()) && {
         created_at: timestamp,
-        plan: 'trial'
+        subscription: {
+          plan: 'trial'
+        }
       })
     };
 
-    await (docSnap.exists() 
+    await (docSnap.exists()
       ? updateDoc(docRef, profileUpdate)
       : setDoc(docRef, profileUpdate)
     );
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: `Profile ${docSnap.exists() ? 'updated' : 'created'} successfully`,
-      timestamp 
+      timestamp
     });
 
   } catch (error) {

@@ -37,21 +37,28 @@ export async function POST(req: NextRequest) {
     if (event.type === 'customer.subscription.deleted') {
       // If the subscription is deleted, deactivate the user's subscription
       await updateDoc(profileDocRef, {
-        is_active: false,
-        subscription_end_date: null
+        subscription: {
+          is_active: false,
+          subscription_end_date: null
+        }
       });
       return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
     } else if (event.type === 'invoice.payment_failed') {
       // If a payment fails, deactivate the user's subscription
       await updateDoc(profileDocRef, {
-        is_active: false
+        subscription: {
+          is_active: false,
+          subscription_end_date: null
+        }
       });
       return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
     } else if (event.type === 'invoice.payment_succeeded') {
       // If a payment succeeds, ensure the user is marked as active and not in trial
       await updateDoc(profileDocRef, {
-        is_active: true,
-        subscription_end_date: subscriptionEndDate
+        subscription: {
+          is_active: true,
+          subscription_end_date: subscriptionEndDate
+        }
       });
       return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
     }
