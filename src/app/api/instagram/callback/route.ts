@@ -37,47 +37,43 @@ export async function POST(request: Request) {
 
     if (profileData.exists()) {
       const profile: Profile = profileData.data() as Profile;
-      if (!profile?.instagram?.access_token || !profile?.instagram?.token_expires) {
-        return NextResponse.json({
-          success: false,
-          error: 'No Instagram access token or token expiration date found'
-        })
-      }
-      const token_expires = new Date(profile.instagram.token_expires)
-      const now = new Date()
-      
-      // If token expires in less than 24 hours, refresh it
-      if (token_expires < new Date(now.getTime() + 24 * 60 * 60 * 1000)) {
-        try {
-          const { access_token, expires_in } = await refreshInstagramToken(
-            profile.instagram.access_token
-          )
-          
-          await updateDoc(profileRef, {
-            instagram: {
-              ...profile.instagram,
-              access_token: access_token,
-              token_expires: new Date(Date.now() + expires_in * 1000).toISOString(),
-              updated_at: new Date().toISOString()
-            }
-          })
-          
+      if (profile.instagram && profile.instagram.access_token && profile.instagram.token_expires) {
+        const token_expires = new Date(profile.instagram.token_expires)
+        const now = new Date()
+
+        // If token expires in less than 24 hours, refresh it
+        if (token_expires < new Date(now.getTime() + 24 * 60 * 60 * 1000)) {
+          try {
+            const { access_token, expires_in } = await refreshInstagramToken(
+              profile.instagram.access_token
+            )
+
+            await updateDoc(profileRef, {
+              instagram: {
+                ...profile.instagram,
+                access_token: access_token,
+                token_expires: new Date(Date.now() + expires_in * 1000).toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            })
+
+            return NextResponse.json({
+              success: true,
+              username: profile.instagram.username,
+              userId: profile.instagram.userId
+            })
+          } catch (error) {
+            console.error('Error refreshing token:', error)
+            // Continue with new authentication if refresh fails
+          }
+        } else {
+          // Token is still valid
           return NextResponse.json({
             success: true,
             username: profile.instagram.username,
-            userId: profile.instagram.userId
+            userId: profile.instagram.userId,
           })
-        } catch (error) {
-          console.error('Error refreshing token:', error)
-          // Continue with new authentication if refresh fails
         }
-      } else {
-        // Token is still valid
-        return NextResponse.json({
-          success: true,
-          username: profile.instagram.username,
-          userId: profile.instagram.userId,
-        })
       }
     }
 
