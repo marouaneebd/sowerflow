@@ -39,6 +39,7 @@ export async function initializeProfile(stripeCustomerId: string, uid: string, e
 
     if (!profileSnap.exists()) {
       await setDoc(profileRef, {
+        uuid: uid,
         email: email,
         subscription: {
           plan: 'trial',

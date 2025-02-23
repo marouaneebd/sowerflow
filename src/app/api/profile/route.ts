@@ -7,7 +7,7 @@ import { Profile } from '@/types/profile';
 // GET method for fetching the profile
 export async function GET(req: NextRequest) {
   try {
-    const { uid, email } = await verifyAuth(req);
+    const { uid } = await verifyAuth(req);
     const profileRef = doc(db, 'profiles', uid);
     const profileSnap = await getDoc(profileRef);
 
