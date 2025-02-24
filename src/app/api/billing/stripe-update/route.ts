@@ -8,6 +8,8 @@ import { Profile } from '@/types/profile';
 export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
+  console.log('Stripe event received', req.body);
+
   try {
     const buf = await req.arrayBuffer();
     const body = Buffer.from(buf);

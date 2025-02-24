@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
 
     const profile = profileSnap.data() as Profile;
 
+
     return NextResponse.json(profile);
 
   } catch (error) {
