@@ -14,21 +14,21 @@ export default function Sidebar() {
   const [alertItem] = useState("");
 
   // Determine active item based on the current path
-  const activeItem = pathname?.includes('billing') 
-    ? "Billing" 
+  const activeItem = pathname?.includes('facturation') 
+    ? "Facturation" 
     : pathname?.includes('contact') 
     ? "Contact" 
-    : "Home";
+    : "Accueil";
 
   const setPage = (item: string): void => {
-    if (item === "Logout") {
+    if (item === "Déconnexion") {
       signOut();
       router.push('/signin');
       return;
     }
     const pageMapping: Record<string, string> = {
-      "Home": "/home",
-      "Billing": "/billing",
+      "Accueil": "/home",
+      "Facturation": "/billing",
       "Contact": "/contact",
     };
     router.push(pageMapping[item]);
@@ -75,7 +75,7 @@ export default function Sidebar() {
   if (!session) return null; // Do not render the sidebar if there is no session
 
   return (
-    <aside className="h-screen">
+    <aside className="h-full">
       <nav className="h-full flex flex-col bg-[#000000] shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -89,10 +89,10 @@ export default function Sidebar() {
           </button>
         </div>
         <ul className="flex flex-col flex-1 px-3">
-          <SidebarItem icon={<HomeIcon size={20} />} name="Home" />
-          <SidebarItem icon={<CreditCard size={20} />} name="Billing" />
+          <SidebarItem icon={<HomeIcon size={20} />} name="Accueil" />
+          <SidebarItem icon={<CreditCard size={20} />} name="Facturation" />
           <SidebarItem icon={<Mail size={20} />} name="Contact" />
-          <SidebarItem icon={<LogOut size={20} />} name="Logout" />
+          <SidebarItem icon={<LogOut size={20} />} name="Déconnexion" />
         </ul>
         <div className="flex p-3">
           <CircleUser />

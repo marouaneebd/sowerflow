@@ -24,16 +24,18 @@ export default async function RootLayout({
 
   return (
     <html lang="fr" className={`${montserrat.variable}`}>
-      <body className={`${montserrat.className} h-full bg-white`}>
-      <SessionProvider>
-      <TopBar></TopBar>
-      <div className="h-full flex">
-      <Sidebar></Sidebar>
-      <div className="flex-grow bg-white">
-        {children}
-      </div>
-      </div>
-      </SessionProvider>
+      <body className={`${montserrat.className} h-screen bg-white`}>
+        <SessionProvider>
+          <div className="flex h-screen flex-col">
+            <TopBar />
+            <div className="flex flex-1 overflow-hidden">
+              <Sidebar />
+              <main className="flex-1 overflow-auto">
+                {children}
+              </main>
+            </div>
+          </div>
+        </SessionProvider>
       </body>
     </html>
   )

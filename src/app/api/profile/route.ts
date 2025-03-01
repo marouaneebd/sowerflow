@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/app/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 import { verifyAuth } from '@/lib/auth';
 import { Profile } from '@/types/profile';
 
@@ -8,16 +7,14 @@ import { Profile } from '@/types/profile';
 export async function GET(req: NextRequest) {
   try {
     const { uid } = await verifyAuth(req);
-    const profileRef = doc(db, 'profiles', uid);
-    const profileSnap = await getDoc(profileRef);
+    const profileRef = adminDb.collection('profiles').doc(uid);
+    const profileSnap = await profileRef.get();
 
-    if (!profileSnap.exists()) {
+    if (!profileSnap.exists) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     const profile = profileSnap.data() as Profile;
-
-
     return NextResponse.json(profile);
 
   } catch (error) {
@@ -41,14 +38,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
     }
 
-    const profileRef = doc(db, 'profiles', uid);
-    const profileSnap = await getDoc(profileRef);
+    const profileRef = adminDb.collection('profiles').doc(uid);
+    const profileSnap = await profileRef.get();
 
     const timestamp = new Date().toISOString();
     const profileUpdate: Partial<Profile> = {
       onboarding_form: formData,
       updated_at: timestamp,
-      ...((!profileSnap.exists()) && {
+      ...((!profileSnap.exists) && {
         created_at: timestamp,
         subscription: {
           plan: 'trial'
@@ -56,13 +53,13 @@ export async function POST(req: NextRequest) {
       })
     };
 
-    await (profileSnap.exists()
-      ? updateDoc(profileRef, profileUpdate)
-      : setDoc(profileRef, profileUpdate)
+    await (profileSnap.exists
+      ? profileRef.update(profileUpdate)
+      : profileRef.set(profileUpdate)
     );
 
     return NextResponse.json({
-      message: `Profile ${profileSnap.exists() ? 'updated' : 'created'} successfully`,
+      message: `Profile ${profileSnap.exists ? 'updated' : 'created'} successfully`,
       timestamp
     });
 

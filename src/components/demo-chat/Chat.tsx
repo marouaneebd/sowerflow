@@ -3,9 +3,10 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { unstable_noStore as noStore } from "next/cache"
 import { ChatMessage } from "@/types/chat"
+import { GradientButton } from "@/components/onboarding-form/GradientButton"
 
 export const maxDuration = 30
 export const dynamic = "force-dynamic"
@@ -15,10 +16,43 @@ export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
+  const [hasStarted, setHasStarted] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value)
+  }
+
+  const startConversation = async () => {
+    setHasStarted(true)
+    setIsTyping(true)
+    try {
+      const response = await fetch("/api/bot/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: [] }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch initial response")
+      }
+
+      const data = await response.json()
+      setMessages([
+        { id: Date.now().toString(), role: "assistant" as const, content: data.message }
+      ])
+    } catch (error) {
+      console.error("Error initializing chat:", error)
+      setMessages([
+        { 
+          id: Date.now().toString(), 
+          role: "assistant" as const, 
+          content: "Désolé, j'ai rencontré une erreur lors de l'initialisation. Veuillez rafraîchir la page ou contacter le support." 
+        }
+      ])
+    } finally {
+      setIsTyping(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -62,52 +96,37 @@ export default function Chat() {
   }
 
   useEffect(() => {
-    const initializeChat = async () => {
-      setIsTyping(true)
-      try {
-        const response = await fetch("/api/bot/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: [] }),
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch initial response")
-        }
-
-        const data = await response.json()
-        setMessages([
-          { id: Date.now().toString(), role: "assistant" as const, content: data.message }
-        ])
-      } catch (error) {
-        console.error("Error initializing chat:", error)
-        setMessages([
-          { 
-            id: Date.now().toString(), 
-            role: "assistant" as const, 
-            content: "Désolé, j'ai rencontré une erreur lors de l'initialisation. Veuillez rafraîchir la page ou contacter le support." 
-          }
-        ])
-      } finally {
-        setIsTyping(false)
-      }
-    }
-
-    initializeChat()
-  }, [])
-
-  useEffect(() => {
     scrollToBottom()
-  }, [messages, isTyping, scrollToBottom])
+  }, [messages, isTyping])
 
+  if (!hasStarted) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white p-4">
+        <Card className="w-full max-w-2xl text-center">
+          <CardHeader>
+            <CardTitle>Essayez votre setter gratuitement</CardTitle>
+            <CardDescription className="mt-2">
+              Testez votre setter et voyez comment il interagit avec vos prospects Instagram.
+              Cette démonstration vous donnera un aperçu de l&apos;expérience utilisateur.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <GradientButton onClick={startConversation} className="mt-4 px-8 py-4">
+              Simuler une conversation
+            </GradientButton>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle>Commencez à discuter avec votre nouveau setter IA</CardTitle>
+          <CardTitle>Conversation avec votre setter IA</CardTitle>
         </CardHeader>
-        <CardContent className="h-[60vh] overflow-y-auto">
+        <CardContent className="h-[50vh] overflow-y-auto">
           {messages
             .filter((m) => m.role !== "system")
             .map((m) => (

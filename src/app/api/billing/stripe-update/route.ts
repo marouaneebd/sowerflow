@@ -1,6 +1,5 @@
 import { stripe } from '@/app/stripe';
-import { db } from '@/app/firebase';
-import { doc, getDocs, updateDoc, query, collection, where } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 import Stripe from 'stripe';
 import { NextRequest, NextResponse } from 'next/server';
 import { Profile } from '@/types/profile';
@@ -21,24 +20,22 @@ export async function POST(req: NextRequest) {
 
   const subscription = event.data.object as Stripe.Subscription;
   const customerId = subscription.customer as string;
-  const subscriptionEndDate = new Date(subscription.current_period_end * 1000); // Subscription end date (timestamp to Date object)
-
+  const subscriptionEndDate = new Date(subscription.current_period_end * 1000);
 
   try {
-    const profilesRef = collection(db, 'profiles');
-    const q = query(profilesRef, where('stripe_customer_id', '==', customerId));
-    const profileSnapshot = await getDocs(q);
+    const profilesRef = adminDb.collection('profiles');
+    const profileSnapshot = await profilesRef.where('stripe_customer_id', '==', customerId).get();
 
     if (profileSnapshot.empty) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     const profile = profileSnapshot.docs[0].data() as Profile;
-    const profileDocRef = doc(db, 'profiles', profile.uuid);
+    const profileDocRef = profilesRef.doc(profile.uuid);
 
     if (event.type === 'customer.subscription.deleted') {
       // If the subscription is deleted, deactivate the user's subscription
-      await updateDoc(profileDocRef, {
+      await profileDocRef.update({
         subscription: {
           is_active: false,
           subscription_end_date: null
@@ -47,7 +44,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
     } else if (event.type === 'invoice.payment_failed') {
       // If a payment fails, deactivate the user's subscription
-      await updateDoc(profileDocRef, {
+      await profileDocRef.update({
         subscription: {
           is_active: false,
           subscription_end_date: null
@@ -56,7 +53,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Subscription updated successfully' }, { status: 200 });
     } else if (event.type === 'invoice.payment_succeeded') {
       // If a payment succeeds, ensure the user is marked as active and not in trial
-      await updateDoc(profileDocRef, {
+      await profileDocRef.update({
         subscription: {
           is_active: true,
           subscription_end_date: subscriptionEndDate

@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { sendPasswordReset } from '../firebase';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { GradientButton } from '@/components/onboarding-form/GradientButton';
 import { Transition } from '@/components/onboarding-form/Transition';
 import Link from 'next/link';
+import { auth, sendPasswordResetEmail } from '@/lib/firebase-client';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -38,13 +38,26 @@ export default function ForgotPassword() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      await sendPasswordReset(email);
-      setMessage("");
+      await sendPasswordResetEmail(auth, email);
+      setMessage("Un email de réinitialisation a été envoyé à votre adresse email.");
       // Optionally redirect to signin page after successful reset
-      router.push('/signin');
+      setTimeout(() => {
+        router.push('/signin');
+      }, 2000);
     } catch (error) {
-      console.log(error);
-      setMessage("La réinitialisation du mot de passe a échoué. Veuillez réessayer.");
+      console.error(error);
+      if (error instanceof Error) {
+        // Handle specific Firebase Auth errors
+        if (error.message.includes('user-not-found')) {
+          setMessage("Aucun compte n'est associé à cette adresse email.");
+        } else if (error.message.includes('invalid-email')) {
+          setMessage("L'adresse email n'est pas valide.");
+        } else {
+          setMessage("La réinitialisation du mot de passe a échoué. Veuillez réessayer.");
+        }
+      } else {
+        setMessage("La réinitialisation du mot de passe a échoué. Veuillez réessayer.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -72,14 +85,20 @@ export default function ForgotPassword() {
                     required
                   />
                 </div>
-                {message && <p className="text-red-500 text-sm text-center">{message}</p>}
+                {message && (
+                  <p className={`text-sm text-center ${
+                    message.includes('envoyé') ? 'text-green-500' : 'text-red-500'
+                  }`}>
+                    {message}
+                  </p>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
               <div className="w-full">
                 <GradientButton 
                   type="submit" 
-                  disabled={!email} 
+                  disabled={!email || isSubmitting} 
                   isLoading={isSubmitting} 
                   className="w-full"
                 >

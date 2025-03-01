@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { db } from '@/app/firebase';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 import {
   WebhookEntry,
   Conversation,
@@ -53,9 +52,11 @@ export async function POST(request: NextRequest) {
     // Process each entry in the webhook
     for (const entry of body.entry) {
       // Find the user UID from profiles collection
-      const profilesRef = collection(db, 'profiles');
-      const q = query(profilesRef, where('instagram.userId', '==', entry.id));
-      const profileSnapshot = await getDocs(q);
+      const profilesRef = adminDb.collection('profiles');
+      const profileSnapshot = await profilesRef
+        .where('instagram.userId', '==', entry.id)
+        .limit(1)
+        .get();
 
       if (profileSnapshot.empty) {
         console.error(`No user found for Instagram ID: ${entry.id}`);
@@ -158,11 +159,10 @@ export async function POST(request: NextRequest) {
 
 async function processConversationEvent(uuid: string, instagram_user_id: string, scoped_user_id: string, event: Event, accessToken: string) {
   const conversationId = `${instagram_user_id}_${scoped_user_id}`;
-  const conversationRef = doc(db, 'conversations', conversationId);
-  const conversationDoc = await getDoc(conversationRef);
+  const conversationRef = adminDb.collection('conversations').doc(conversationId);
+  const conversationDoc = await conversationRef.get();
 
-  if (!conversationDoc.exists()) {
-
+  if (!conversationDoc.exists) {
     const fetchInstagramProfile = await fetch(`https://graph.instagram.com/v22.0/${scoped_user_id}?access_token=${accessToken}`);
     const instagramProfile = await fetchInstagramProfile.json();
 
@@ -184,7 +184,7 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
       events: [event],
     };
 
-    await setDoc(conversationRef, newConversation);
+    await conversationRef.set(newConversation);
   } else {
     const conversation = conversationDoc.data() as Conversation;
 
@@ -216,7 +216,7 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
       }
     }
 
-    await updateDoc(conversationRef, updates);
+    await conversationRef.update(updates);
   }
 }
 
@@ -237,10 +237,10 @@ async function getMediaDetails(mediaId: string, accessToken: string, uuid: strin
   const media_document_id = `${instagram_user_id}_${mediaId}`;
   try {
     // First check if media exists in Firebase
-    const mediaRef = doc(db, 'medias', media_document_id);
-    const mediaDoc = await getDoc(mediaRef);
+    const mediaRef = adminDb.collection('medias').doc(media_document_id);
+    const mediaDoc = await mediaRef.get();
 
-    if (mediaDoc.exists()) {
+    if (mediaDoc.exists) {
       return mediaDoc.data() as Media;
     }
 
@@ -270,7 +270,7 @@ async function getMediaDetails(mediaId: string, accessToken: string, uuid: strin
     };
 
     // Store in Firebase
-    await setDoc(mediaRef, newMedia);
+    await mediaRef.set(newMedia);
 
     return newMedia as Media;
   } catch (error) {

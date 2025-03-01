@@ -1,5 +1,4 @@
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '@/app/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 import { verifyAuth } from '@/lib/auth';
 import { generateAIResponse } from "@/lib/messageBuilder";
 import { Profile } from '@/types/profile';
@@ -16,9 +15,9 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
     
     // Only get user profile for regular users
-    const profileRef = doc(db, 'profiles', auth.uid);
-    const profileSnap = await getDoc(profileRef);
-    const profile = profileSnap.exists() ? profileSnap.data() as Profile : null;
+    const profileRef = adminDb.collection('profiles').doc(auth.uid);
+    const profileSnap = await profileRef.get();
+    const profile = profileSnap.exists ? profileSnap.data() as Profile : null;
 
     // Check if profile exists
     if (!profile) {
@@ -29,13 +28,6 @@ export async function POST(req: Request) {
     }
 
     const text = await generateAIResponse(profile, messages);
-
-    // Update profile with new credits used
-    await updateDoc(profileRef, {
-      subscription: {
-        credits_used: (profile.subscription?.credits_used || 0) + 1
-      }
-    });
 
     return new Response(JSON.stringify({ message: text }), {
       headers: { "Content-Type": "application/json" },

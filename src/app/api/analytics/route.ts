@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/app/firebase';
+import { adminDb } from '@/lib/firebase-admin';
 import { verifyAuth } from '@/lib/auth';
 import { Conversation } from '@/types/conversation';
 
@@ -9,9 +8,8 @@ export async function GET(req: NextRequest) {
     const { uid } = await verifyAuth(req);
 
     // Get all conversations for the user
-    const conversationsRef = collection(db, 'conversations');
-    const q = query(conversationsRef, where('uuid', '==', uid));
-    const conversationsSnapshot = await getDocs(q);
+    const conversationsRef = adminDb.collection('conversations');
+    const conversationsSnapshot = await conversationsRef.where('uuid', '==', uid).orderBy('created_at', 'desc').get();
 
     // Initialize counters
     let totalConversations = 0;

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/app/firebase';
-import { collection, query, where, orderBy, limit, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 import { ChatMessage, ChatRole } from '@/types/chat';
 import { Conversation, Event } from '@/types/conversation';
 import { generateAIResponse } from '@/lib/messageBuilder';
@@ -19,15 +18,13 @@ export async function GET(req: Request) {
 
   try {
     // Get the oldest conversation with status 'sending_message'
-    const conversationsRef = collection(db, 'conversations');
-    const q = query(
-      conversationsRef,
-      where('status', '==', 'sending_message'),
-      orderBy('updated_at', 'asc'),
-      limit(1)
-    );
+    const conversationsRef = adminDb.collection('conversations');
+    const querySnapshot = await conversationsRef
+      .where('status', '==', 'sending_message')
+      .orderBy('updated_at', 'asc')
+      .limit(1)
+      .get();
 
-    const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) {
       return NextResponse.json({ message: 'No conversations to process' });
     }
@@ -36,14 +33,12 @@ export async function GET(req: Request) {
     const conversation = conversationDoc.data() as Conversation;
 
     // Get user's profile first
-    const profilesRef = collection(db, 'profiles');
-    const profileQuery = query(
-      profilesRef,
-      where('instagram.userId', '==', conversation.instagram_user_id),
-      limit(1)
-    );
+    const profilesRef = adminDb.collection('profiles');
+    const profileSnapshot = await profilesRef
+      .where('instagram.userId', '==', conversation.instagram_user_id)
+      .limit(1)
+      .get();
     
-    const profileSnapshot = await getDocs(profileQuery);
     if (profileSnapshot.empty) {
       throw new Error('Profile not found');
     }
@@ -53,7 +48,7 @@ export async function GET(req: Request) {
     // Skip if profile is not active
     if (!profile.subscription?.is_active) {
       // Update conversation status to 'error' to prevent it from being processed again
-      await updateDoc(doc(db, 'conversations', conversationDoc.id), {
+      await conversationDoc.ref.update({
         status: 'waiting_payment',
         updated_at: Date.now()
       });
@@ -120,7 +115,7 @@ export async function GET(req: Request) {
     };
 
     // Update conversation in Firebase
-    await updateDoc(doc(db, 'conversations', conversationDoc.id), {
+    await conversationDoc.ref.update({
       status: 'waiting_message',
       updated_at: Date.now(),
       events: [...conversation.events, newEvent]

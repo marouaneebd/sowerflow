@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { doc, updateDoc, getDoc } from 'firebase/firestore'
-import { db } from '@/app/firebase'
+import { adminDb } from '@/lib/firebase-admin'
 import { verifyAuth } from '@/lib/auth'
 import { InstagramProfile, Profile } from '@/types/profile'
 
@@ -32,10 +31,10 @@ export async function POST(request: Request) {
     const { code } = await request.json()
 
     // Check if user already has a token that needs refresh
-    const profileRef = doc(db, 'profiles', uid)
-    const profileData = await getDoc(profileRef);
+    const profileRef = adminDb.collection('profiles').doc(uid)
+    const profileData = await profileRef.get();
 
-    if (profileData.exists()) {
+    if (profileData.exists) {
       const profile: Profile = profileData.data() as Profile;
       if (profile.instagram && profile.instagram.access_token && profile.instagram.token_expires) {
         const token_expires = new Date(profile.instagram.token_expires)
@@ -48,7 +47,7 @@ export async function POST(request: Request) {
               profile.instagram.access_token
             )
 
-            await updateDoc(profileRef, {
+            await profileRef.update({
               instagram: {
                 ...profile.instagram,
                 access_token: access_token,
@@ -116,7 +115,7 @@ export async function POST(request: Request) {
       updated_at: new Date().toISOString()
     };
 
-    await updateDoc(profileRef, {
+    await profileRef.update({
       instagram: instagramData
     });
 

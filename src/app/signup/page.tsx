@@ -9,9 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Transition } from '@/components/onboarding-form/Transition';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/app/firebase';
-
+import { signUp } from '@/app/api/auth/actions';
 
 type FormData = {
   email: string,
@@ -21,6 +19,7 @@ type FormData = {
 
 export default function Signup() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -38,32 +37,38 @@ export default function Signup() {
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    setError(null)
   }
 
   const isStepValid = () => {
     return formData.email !== '' && formData.password !== '' && formData.repeatPassword !== '' && formData.password === formData.repeatPassword
   }
 
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (isStepValid()) {
-      signup();
+      try {
+        setIsSubmitting(true)
+        setError(null)
+        const email = formData.email;
+        const password = formData.password;
+        
+        const result = await signUp(email, password);
+        
+        if (result.success) {
+          // Sign in with credentials after successful signup
+          await signIn('credentials', { email, password, redirect: true, callbackUrl: '/' });
+        } else {
+          setError(result.error || 'An error occurred during signup');
+        }
+      } catch (error) {
+        console.error(error);
+        setError('An unexpected error occurred');
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
-
-  const signup = async () => {
-    try {
-      setIsSubmitting(true);
-      const email = formData.email;
-      const password = formData.password;
-      await createUserWithEmailAndPassword(auth, email, password);
-      await signIn('credentials', { email, password, redirect: true, callbackUrl: '/' });
-    } catch (error) {
-      console.log(error);
-    }
-    setIsSubmitting(false);
-  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-white">
@@ -107,6 +112,9 @@ export default function Signup() {
                     required
                   />
                 </div>
+                {error && (
+                  <div className="text-red-500 text-sm">{error}</div>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
