@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     await stripe.subscriptions.update(
       sub.id,
       {
-        description: "Autobot subscription"
+        description: "SowerFlow subscription"
       }
     );
 

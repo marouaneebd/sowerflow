@@ -3,7 +3,7 @@ import SessionProvider from './SessionProvider';
 import Sidebar from '@/components/layout/Sidebar';
 import TopBar from '@/components/layout/TopBar';
 import { Montserrat } from 'next/font/google'
-
+import Hotjar from '@/components/Hotjar';
 
 const montserrat = Montserrat({ 
   subsets: ['latin'],
@@ -18,7 +18,6 @@ export const metadata = {
   },
 }
 
-
 export default async function RootLayout({
   children,
 }: {
@@ -27,6 +26,9 @@ export default async function RootLayout({
 
   return (
     <html lang="fr" className={`${montserrat.variable}`}>
+      <head>
+        <Hotjar hjid="5254531" hjsv="6" />
+      </head>
       <body className={`${montserrat.className} h-screen bg-white`}>
         <SessionProvider>
           <div className="flex h-screen flex-col">
