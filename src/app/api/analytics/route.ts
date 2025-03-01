@@ -3,6 +3,9 @@ import { adminDb } from '@/lib/firebase-admin';
 import { verifyAuth } from '@/lib/auth';
 import { Conversation } from '@/types/conversation';
 
+// Add route segment config to mark as dynamic
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const { uid } = await verifyAuth(req);
