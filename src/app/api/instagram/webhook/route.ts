@@ -72,11 +72,6 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      if (!profile.subscription?.is_active) {
-        console.log(`Profile is not active for Instagram ID: ${entry.id}`);
-        continue;
-      }
-
       // Process change events
       if (entry.changes) {
         for (const changeEvent of entry.changes) {
