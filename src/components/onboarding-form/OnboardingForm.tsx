@@ -58,6 +58,12 @@ export default function OnboardingForm({ onComplete }: Props) {
     }
   }, [])
 
+  useEffect(() => {
+    if (formData.status === 'finished' && onComplete) {
+      onComplete();
+    }
+  }, [formData.status, onComplete]);
+
   const saveProgress = async (newData: Partial<FormData>) => {
     try {
       const response = await fetch('/api/profile', {

@@ -2,7 +2,6 @@
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { Profile } from '@/types/profile';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -61,7 +60,6 @@ export default function Contact() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [tickets, setTickets] = useState<(SupportTicket & { id: string })[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -70,17 +68,6 @@ export default function Contact() {
       description: "",
     },
   })
-
-  const fetchTickets = async () => {
-    try {
-      const response = await fetch('/api/support');
-      if (!response.ok) throw new Error('Failed to fetch tickets');
-      const data = await response.json();
-      setTickets(data);
-    } catch (error) {
-      console.error('Error fetching tickets:', error);
-    }
-  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -106,7 +93,18 @@ export default function Contact() {
         message: 'Votre demande a été envoyée avec succès' 
       });
       form.reset();
-      fetchTickets(); // Refresh tickets after successful submission
+      // We'll handle ticket fetching in the callback
+      const fetchLatestTickets = async () => {
+        try {
+          const response = await fetch('/api/support');
+          if (!response.ok) throw new Error('Failed to fetch tickets');
+          const data = await response.json();
+          setTickets(data);
+        } catch (error) {
+          console.error('Error fetching tickets:', error);
+        }
+      };
+      fetchLatestTickets();
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitStatus({ 
@@ -118,27 +116,39 @@ export default function Contact() {
     }
   }
 
-  const checkProfileStatus = async () => {
-    try {
-      const res = await fetch('/api/profile');
-      if (!res.ok) {
-        router.push('/signin');
-        return;
-      }
-      const profile: Profile = await res.json();
-      setProfile(profile);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      router.push('/signin');
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/signin');
-    } else if (status === 'authenticated') {
+      return;
+    }
+    
+    if (status === 'authenticated') {
+      const checkProfileStatus = async () => {
+        try {
+          const res = await fetch('/api/profile');
+          if (!res.ok) {
+            router.push('/signin');
+            return;
+          }
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+          router.push('/signin');
+          setIsLoading(false);
+        }
+      };
+
+      const fetchTickets = async () => {
+        try {
+          const response = await fetch('/api/support');
+          if (!response.ok) throw new Error('Failed to fetch tickets');
+          const data = await response.json();
+          setTickets(data);
+        } catch (error) {
+          console.error('Error fetching tickets:', error);
+        }
+      };
+
       checkProfileStatus();
       fetchTickets();
     }

@@ -1,140 +1,98 @@
 'use client';
-import { signIn, useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { GradientButton } from '@/components/onboarding-form/GradientButton';
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Transition } from '@/components/onboarding-form/Transition';
-import { signUp } from '@/app/api/auth/actions';
 
-type FormData = {
-  email: string,
-  password: string,
-  repeatPassword: string
-}
-
-export default function Signup() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
-    repeatPassword: ''
-  })
+export default function SignUpPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const { data: session } = useSession();
-
-  useEffect(() => {
-    if (session) {
-      router.push('/home');
-    }
-  }, [session, router]);
-
-  const updateFormData = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    setError(null)
-  }
-
-  const isStepValid = () => {
-    return formData.email !== '' && formData.password !== '' && formData.repeatPassword !== '' && formData.password === formData.repeatPassword
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isStepValid()) {
-      try {
-        setIsSubmitting(true)
-        setError(null)
-        const email = formData.email;
-        const password = formData.password;
-        
-        const result = await signUp(email, password);
-        
-        if (result.success) {
-          // Sign in with credentials after successful signup
-          await signIn('credentials', { email, password, redirect: true, callbackUrl: '/' });
-        } else {
-          setError(result.error || 'An error occurred during signup');
-        }
-      } catch (error) {
-        console.error(error);
-        setError('An unexpected error occurred');
-      } finally {
-        setIsSubmitting(false)
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to sign up');
       }
+
+      // Redirect to login or dashboard
+      router.push('/login');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sign up');
     }
-  }
+  };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-white">
-      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text">
-        Inscription
-      </h1>
-      <Card className="w-full max-w-lg mx-auto">
-        <CardContent className="pt-6">
-        </CardContent>
-        <Transition key="signin">
-          <form onSubmit={handleSubmit}>
-            <CardContent className="min-h-[250px]">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => updateFormData('email', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Mot de passe</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => updateFormData('password', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="repeatPassword">Confirmer mot de passe</Label>
-                  <Input
-                    id="repeatPassword"
-                    type="password"
-                    value={formData.repeatPassword}
-                    onChange={(e) => updateFormData('repeatPassword', e.target.value)}
-                    required
-                  />
-                </div>
-                {error && (
-                  <div className="text-red-500 text-sm">{error}</div>
-                )}
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-2">
-              <div className="w-full">
-                <GradientButton type="submit" disabled={!isStepValid()} isLoading={isSubmitting} className="w-full">
-                  S&apos;inscrire
-                </GradientButton>
-              </div>
-              <div className="w-full">
-                <Link href="/signin">
-                  <Button variant="outline" className="w-full">
-                    Connexion
-                  </Button>
-                </Link>
-              </div>
-            </CardFooter>
-          </form>
-        </Transition>
-      </Card>
-    </main>
-  )
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create your account
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email-address" className="sr-only">
+                Email address
+              </label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Sign up
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }
 

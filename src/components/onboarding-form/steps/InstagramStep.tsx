@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import type { FormData } from '../OnboardingForm'
@@ -19,47 +19,32 @@ export default function InstagramStep({ instagram, instagramBio, updateFormData 
   const INSTAGRAM_CLIENT_ID = process.env.NEXT_PUBLIC_INSTAGRAM_CLIENT_ID
   const REDIRECT_URI = process.env.NEXT_PUBLIC_INSTAGRAM_REDIRECT_URI
   
-  useEffect(() => {
-    // Check if user is already connected to Instagram
-    const checkInstagramConnection = async () => {
-      try {
-        const response = await fetch('/api/profile')
-        const profile = await response.json() as Profile;
+  const checkInstagramConnection = async () => {
+    try {
+      const response = await fetch('/api/profile')
+      const profile = await response.json() as Profile;
 
-
+      if (profile.instagram?.username) {
+        // Check if token is expired
+        const tokenExpires = new Date(profile.instagram.token_expires)
+        const now = new Date()
         
-        if (profile.instagram?.username) {
-          // Check if token is expired
-          const tokenExpires = new Date(profile.instagram.token_expires)
-          const now = new Date()
-          
-          if (tokenExpires > now) {
-            setIsConnected(true)
-            updateFormData('instagram', profile.instagram.username)
-            updateFormData('instagramBio', profile.instagram.biography)
-          } else {
-            // Token is expired, reset connection state
-            setIsConnected(false)
-            setError('La connexion Instagram a expiré. Veuillez vous reconnecter.')
-          }
+        if (tokenExpires > now) {
+          setIsConnected(true)
+          updateFormData('instagram', profile.instagram.username)
+          updateFormData('instagramBio', profile.instagram.biography)
+        } else {
+          // Token is expired, reset connection state
+          setIsConnected(false)
+          setError('La connexion Instagram a expiré. Veuillez vous reconnecter.')
         }
-      } catch (err) {
-        console.error('Error checking Instagram connection:', err)
-      } finally {
-        setIsLoading(false)
       }
+    } catch (err) {
+      console.error('Error checking Instagram connection:', err)
+    } finally {
+      setIsLoading(false)
     }
-
-    checkInstagramConnection()
-
-    // Handle Instagram OAuth redirect
-    const urlParams = new URLSearchParams(window.location.search)
-    const code = urlParams.get('code')
-    
-    if (code) {
-      handleInstagramCallback(code)
-    }
-  }, [])
+  }
 
   const handleInstagramLogin = () => {
     const authUrl = `https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=${INSTAGRAM_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish`
@@ -90,6 +75,22 @@ export default function InstagramStep({ instagram, instagramBio, updateFormData 
       setError('Erreur lors de la connexion à Instagram: ' + err)
     }
   }
+
+  const handleInitialLoad = useCallback(async () => {
+    await checkInstagramConnection();
+
+    // Handle Instagram OAuth redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    
+    if (code) {
+      await handleInstagramCallback(code);
+    }
+  }, [checkInstagramConnection, handleInstagramCallback]);
+
+  useEffect(() => {
+    handleInitialLoad();
+  }, [handleInitialLoad]);
 
   return (
     <div className="space-y-4">

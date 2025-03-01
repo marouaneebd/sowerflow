@@ -62,7 +62,7 @@ export default function TopBar() {
                                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm.75 12h-1.5v-1.5h1.5V14zm0-3h-1.5V6h1.5v5z" />
                             </svg>
                             <span className="text-sm font-medium ml-2">
-                                Votre compte n'est pas activé. Pour l'activer, veuillez vous rendre sur la page de facturation.
+                                Votre compte n&apos;est pas activé. Pour l&apos;activer, veuillez vous rendre sur la page de facturation.
                             </span>
                         </div>
                         <button

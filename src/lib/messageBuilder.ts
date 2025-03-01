@@ -105,7 +105,7 @@ export async function generateAIResponse(
       [name]: {
         parameters: tool.parameters,
         description: tool.description,
-        execute: async (args: { reason: string }, _options: any) => {
+        execute: async (args: { reason: string }) => {
           const result = await tool.execute(args, profileData, conversationId);
           return result;
         }

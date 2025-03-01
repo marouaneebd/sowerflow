@@ -3,7 +3,7 @@ import { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase-client';
-import { getStripeCustomerId, initializeProfile } from '@/app/api/auth/actions';
+import { getStripeCustomerId, initializeProfile } from '@/lib/auth-helpers';
 import { stripe } from '@/app/stripe';
 import { Session } from 'next-auth';
 

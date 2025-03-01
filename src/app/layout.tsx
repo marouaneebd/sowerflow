@@ -11,8 +11,11 @@ const montserrat = Montserrat({
 })
 
 export const metadata = {
-  title: 'SowerFlow',
-  description: '',
+  title: 'Sowerflow',
+  description: 'Votre plateforme de gestion de projets',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 
