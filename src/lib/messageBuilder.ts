@@ -1,7 +1,7 @@
 import { ChatMessage } from "@/types/chat";
 import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
-import { Profile } from "@/types/profile";
+import { Profile, PricingItem } from "@/types/profile";
 import { z } from "zod";
 import { adminDb } from '@/lib/firebase-admin';
 
@@ -65,7 +65,7 @@ export function buildDeveloperMessage(profileData: Profile | null): ChatMessage 
 
     if (form.pricing && form.pricing.length > 0) {
       developerMessageContent += `\n- Offres disponibles:`;
-      form.pricing.forEach((item: { name: string; price: number }) => {
+      form.pricing.forEach((item: PricingItem) => {
         developerMessageContent += `\n  * ${item.name}: ${item.price}€`;
       });
     }

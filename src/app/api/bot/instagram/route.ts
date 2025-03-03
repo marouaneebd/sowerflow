@@ -38,31 +38,45 @@ export async function GET(req: Request) {
       .where('instagram.userId', '==', conversation.instagram_user_id)
       .limit(1)
       .get();
-    
+
     if (profileSnapshot.empty) {
       throw new Error('Profile not found');
     }
 
     const profile = profileSnapshot.docs[0].data() as Profile;
 
-    // Skip if profile is not active
+    // Skip if profile subscription is not active
     if (!profile.subscription?.is_active) {
       // Update conversation status to 'error' to prevent it from being processed again
       await conversationDoc.ref.update({
         status: 'waiting_payment',
         updated_at: Date.now()
       });
-      
-      return NextResponse.json({ 
+
+      return NextResponse.json({
         message: 'Skipped inactive profile',
-        conversation_id: conversationDoc.id 
+        conversation_id: conversationDoc.id
+      });
+    }
+
+    // Skip if user has stop_setter set to true
+    if (profile.stop_setter) {
+      // Update conversation status to 'error' to prevent it from being processed again
+      await conversationDoc.ref.update({
+        status: 'setter_stopped',
+        updated_at: Date.now()
+      });
+
+      return NextResponse.json({
+        message: 'Skipped because user has stop_setter set to true',
+        conversation_id: conversationDoc.id
       });
     }
 
     // Convert events to chat messages
     const messages: ChatMessage[] = conversation.events
       .filter(event => !!event.description)
-      .map(event => ({ 
+      .map(event => ({
         id: event.date.toString(),
         role: (event.direction === 'received' && event.type !== 'comments' && event.type !== 'live_comments' ? 'user' : 'assistant') as ChatRole,
         content: event.description
@@ -121,9 +135,9 @@ export async function GET(req: Request) {
       events: [...conversation.events, newEvent]
     });
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Successfully processed conversation',
-      conversation_id: conversationDoc.id 
+      conversation_id: conversationDoc.id
     });
 
   } catch (error) {

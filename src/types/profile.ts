@@ -8,13 +8,21 @@ export interface InstagramProfile {
   updated_at: string;
 }
 
+
 export interface OnboardingForm {
   product?: string;
   offer?: string;
-  pricing?: Array<{ name: string; price: number }>;
-  call_info?: string;
+  pricing?: PricingItem[];
+  messages?: string[];
+  phone?: string;
   calendly?: string;
+  call_info?: string;
   status?: 'pending' | 'finished';
+}
+
+export interface PricingItem {
+  name: string
+  price: string
 }
 
 export interface Subscription {
@@ -30,6 +38,7 @@ export interface Profile {
   updated_at?: string;
   uuid: string;
   email: string;
+  stop_setter: boolean;
   onboarding_form?: OnboardingForm;
   instagram?: InstagramProfile;
   subscription?: Subscription;

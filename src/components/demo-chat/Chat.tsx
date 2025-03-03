@@ -124,9 +124,9 @@ export default function Chat() {
     <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle>Conversation avec votre setter IA</CardTitle>
+          <CardTitle>Cette conversation simule l'engagement de votre setter avec un prospect</CardTitle>
         </CardHeader>
-        <CardContent className="h-[50vh] overflow-y-auto">
+        <CardContent className="h-[35vh] overflow-y-auto">
           {messages
             .filter((m) => m.role !== "system")
             .map((m) => (

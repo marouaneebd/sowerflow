@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
         stripe_customer_id: stripeCustomer.id,
         credits_used: 0,
         end_date: new Date(new Date().setHours(0, 0, 0, 0))
-      }
+      },
+      stop_setter: false
     });
 
     // Create subscription with 3-day trial

@@ -10,7 +10,8 @@ export async function initializeProfile(stripeCustomerId: string, uid: string, e
       stripe_customer_id: stripeCustomerId,
       credits_used: 0,
       end_date: new Date(new Date().setHours(0, 0, 0, 0))
-    }
+    },
+    stop_setter: false
   });
 }
 

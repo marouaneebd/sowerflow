@@ -13,6 +13,7 @@ import CalendlyStep from './steps/CalendlyStep'
 import { Transition } from './Transition'
 import { ProgressBar } from './ProgressBar'
 import { GradientButton } from './GradientButton'
+import { Profile, PricingItem, OnboardingForm } from '@/types/profile'
 
 export type FormData = {
   instagram: string
@@ -24,39 +25,29 @@ export type FormData = {
   messages: string[]
   phone: string
   calendly: string
-  status: 'not_started' | 'ongoing' | 'finished'
-}
-
-type PricingItem = {
-  name: string
-  price: string
+  status: 'pending' | 'finished'
 }
 
 type Props = {
+  profile: Profile
   onComplete?: () => void;
 }
 
-export default function OnboardingForm({ onComplete }: Props) {
+export default function OnboardingFormComponent({ profile, onComplete }: Props) {
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<FormData>({
-    instagram: '',
-    instagramBio: '',
-    product: '',
-    offer: '',
-    pricing: [],
-    callInfo: '',
-    messages: [],
-    phone: '',
-    calendly: '',
-    status: 'not_started'
+    instagram: profile.instagram?.username || '',
+    instagramBio: profile.instagram?.biography || '',
+    product: profile.onboarding_form?.product || '',
+    offer: profile.onboarding_form?.offer || '',
+    pricing: profile.onboarding_form?.pricing || [],
+    messages: profile.onboarding_form?.messages || [],
+    phone: profile.onboarding_form?.phone || '',
+    callInfo: profile.onboarding_form?.call_info || '',
+    calendly: profile.onboarding_form?.calendly || '',
+    status: profile.onboarding_form?.status || 'pending'
   })
-
-  useEffect(() => {
-    if (formData.status === 'not_started') {
-      setFormData(prev => ({ ...prev, status: 'ongoing' }))
-    }
-  }, [])
 
   useEffect(() => {
     if (formData.status === 'finished' && onComplete) {
@@ -66,12 +57,24 @@ export default function OnboardingForm({ onComplete }: Props) {
 
   const saveProgress = async (newData: Partial<FormData>) => {
     try {
+      // Format the data to match the expected format
+      const formattedData : OnboardingForm = {
+        product: newData.product,
+        offer: newData.offer,
+        pricing: newData.pricing,
+        messages: newData.messages,
+        phone: newData.phone,
+        call_info: newData.callInfo,
+        calendly: newData.calendly,
+        status: newData.status
+      };
+
       const response = await fetch('/api/profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newData)
+        body: JSON.stringify({ onboarding_form: formattedData })
       });
 
       if (!response.ok) {
@@ -194,16 +197,13 @@ export default function OnboardingForm({ onComplete }: Props) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24 bg-white">
-      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text">
-        Construisons ensemble ta stratégie de setting
-      </h1>
+    <div className="flex flex-col items-center justify-center p-6 bg-white">
       <Card className="w-full max-w-lg mx-auto">
         <CardContent className="pt-6">
           <ProgressBar currentStep={step} totalSteps={8} />
         </CardContent>
         <form onSubmit={handleSubmit}>
-          <CardContent className="min-h-[300px]">
+          <CardContent className="min-h-[200px]">
             {renderStep()}
           </CardContent>
           <CardFooter className={`flex ${step === 1 ? 'justify-end' : 'justify-between'}`}>
