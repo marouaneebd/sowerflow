@@ -27,18 +27,21 @@ export async function GET(req: NextRequest) {
 }
 
 // Type guard function to validate OnboardingForm
-function isValidOnboardingForm(form: any): form is OnboardingForm {
+function isValidOnboardingForm(form: unknown): form is OnboardingForm {
+  if (!form || typeof form !== 'object') {
+    return false;
+  }
+  
+  const formObj = form as Record<string, unknown>;
   return (
-    form &&
-    typeof form === 'object' &&
-    typeof form.product === 'string' &&
-    typeof form.offer === 'string' &&
-    Array.isArray(form.pricing) &&
-    Array.isArray(form.messages) &&
-    typeof form.phone === 'string' &&
-    typeof form.calendly === 'string' &&
-    typeof form.call_info === 'string' &&
-    (form.status === 'pending' || form.status === 'finished')
+    typeof formObj.product === 'string' &&
+    typeof formObj.offer === 'string' &&
+    Array.isArray(formObj.pricing) &&
+    Array.isArray(formObj.messages) &&
+    typeof formObj.phone === 'string' &&
+    typeof formObj.calendly === 'string' &&
+    typeof formObj.call_info === 'string' &&
+    (formObj.status === 'pending' || formObj.status === 'finished')
   );
 }
 
@@ -67,7 +70,7 @@ export async function POST(req: NextRequest) {
     const profileSnap = await profileRef.get();
 
     const timestamp = new Date().toISOString();
-    let profileUpdate: Partial<Profile> = {
+    const profileUpdate: Partial<Profile> = {
       updated_at: timestamp
     };
 

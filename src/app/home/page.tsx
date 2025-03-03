@@ -6,7 +6,6 @@ import OnboardingForm from '@/components/onboarding-form/OnboardingForm';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from '@/components/onboarding-form/GradientButton';
 import { Profile } from '@/types/profile';
@@ -272,7 +271,7 @@ export default function Home() {
                     <GradientButton 
                       onClick={() => handleStepChange('chat')}
                     >
-                      Passer à l'étape suivante
+                      Passer à l&apos;étape suivante
                     </GradientButton>
                   </div>
                 </div>
