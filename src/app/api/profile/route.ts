@@ -26,37 +26,57 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// Type guard function to validate OnboardingForm
+function isValidOnboardingForm(form: any): form is OnboardingForm {
+  return (
+    form &&
+    typeof form === 'object' &&
+    typeof form.product === 'string' &&
+    typeof form.offer === 'string' &&
+    Array.isArray(form.pricing) &&
+    Array.isArray(form.messages) &&
+    typeof form.phone === 'string' &&
+    typeof form.calendly === 'string' &&
+    typeof form.call_info === 'string' &&
+    (form.status === 'pending' || form.status === 'finished')
+  );
+}
+
 // POST method to handle form submission
 export async function POST(req: NextRequest) {
   try {
     const { uid } = await verifyAuth(req);
+    const { onboarding_form, stop_setter } = await req.json();
 
-    const { onboarding_form } = await req.json();
+    // Validate onboarding_form if it's present
+    if (onboarding_form && !isValidOnboardingForm(onboarding_form)) {
+      return NextResponse.json({ error: 'Invalid onboarding form data' }, { status: 400 });
+    }
 
-    // Verify if the onboarding_form respects the OnboardingForm type
-    if (
-      !onboarding_form ||
-      typeof onboarding_form !== 'object' ||
-      !onboarding_form.product ||
-      !onboarding_form.offer ||
-      !onboarding_form.pricing ||
-      !onboarding_form.messages ||
-      !onboarding_form.phone ||
-      !onboarding_form.calendly ||
-      !onboarding_form.call_info ||
-      !onboarding_form.status
-    ) {
-      return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
+    // Validate stop_setter if it's present
+    if (stop_setter !== undefined && typeof stop_setter !== 'boolean') {
+      return NextResponse.json({ error: 'Invalid stop_setter value' }, { status: 400 });
+    }
+
+    // If neither onboarding_form nor stop_setter is provided
+    if (!onboarding_form && stop_setter === undefined) {
+      return NextResponse.json({ error: 'No valid data provided' }, { status: 400 });
     }
 
     const profileRef = adminDb.collection('profiles').doc(uid);
     const profileSnap = await profileRef.get();
 
     const timestamp = new Date().toISOString();
-    const profileUpdate: Partial<Profile> = {
-      onboarding_form: onboarding_form,
+    let profileUpdate: Partial<Profile> = {
       updated_at: timestamp
     };
+
+    if (onboarding_form) {
+      profileUpdate.onboarding_form = onboarding_form;
+    }
+    if (stop_setter !== undefined) {
+      profileUpdate.stop_setter = stop_setter;
+    }
 
     await (profileSnap.exists
       ? profileRef.update(profileUpdate)

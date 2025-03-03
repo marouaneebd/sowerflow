@@ -1,10 +1,12 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import OnboardingForm from '@/components/onboarding-form/OnboardingForm';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { GradientButton } from '@/components/onboarding-form/GradientButton';
 import { Profile } from '@/types/profile';
@@ -19,8 +21,9 @@ export default function Home() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [activeStep, setActiveStep] = useState<'onboarding' | 'chat' | 'analytics'>('onboarding');
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const checkProfileStatus = async () => {
+  const checkProfileStatus = useCallback(async () => {
     try {
       const res = await fetch('/api/profile');
       if (!res.ok) {
@@ -45,7 +48,7 @@ export default function Home() {
       router.push('/signin');
       setIsLoading(false);
     }
-  };
+  }, [router]);
 
   const handleInstagramCallback = async (code: string) => {
     try {
@@ -104,6 +107,37 @@ export default function Home() {
     }
   };
 
+  const toggleSetter = async () => {
+    if (!profile) return;
+    
+    setIsUpdating(true);
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          stop_setter: !profile.stop_setter
+        }),
+      });
+
+      if (response.ok) {
+        setProfile(prevProfile => {
+          if (!prevProfile) return null;
+          return {
+            ...prevProfile,
+            stop_setter: !prevProfile.stop_setter
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error updating setter status:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   useEffect(() => {
     // Handle Instagram OAuth redirect
     const urlParams = new URLSearchParams(window.location.search);
@@ -119,7 +153,7 @@ export default function Home() {
       checkProfileStatus();
       fetchAnalytics();
     }
-  }, [status, router]);
+  }, [status, router, checkProfileStatus]);
 
   // Handle step change
   const handleStepChange = (step: 'onboarding' | 'chat' | 'analytics') => {
@@ -184,7 +218,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600">
-                Testez votre setter pour voir si il répond correctement à vos prospects
+                Testez votre setter pour voir s&apos;il répond correctement à vos prospects
               </p>
             </CardContent>
           </Card>
@@ -291,8 +325,21 @@ export default function Home() {
                 </div>
 
                 <Card>
-                  <CardHeader>
+                  <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Conversations Récentes</CardTitle>
+                    <div className="flex items-center bg-white rounded-lg shadow-sm border p-3 space-x-3">
+                      <div className="flex flex-col space-y-1">
+                        <span className={`text-sm ${isUpdating ? 'text-gray-400' : profile?.stop_setter ? 'text-red-500' : 'text-emerald-500'}`}>
+                          {isUpdating ? 'Mise à jour...' : profile?.stop_setter ? 'Setter inactif' : 'Setter actif'}
+                        </span>
+                      </div>
+                      <Switch
+                        id="setter-status"
+                        checked={!profile?.stop_setter}
+                        onCheckedChange={() => toggleSetter()}
+                        disabled={isUpdating}
+                      />
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="overflow-x-auto">

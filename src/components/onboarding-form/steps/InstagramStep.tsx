@@ -10,7 +10,7 @@ interface InstagramStepProps {
 }
 
 export default function InstagramStep({ instagram, instagramBio }: InstagramStepProps) {
-  const [error, setError] = useState('')
+  const [error] = useState('')
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
