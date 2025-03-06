@@ -1,5 +1,5 @@
 'use client';
-import { ChevronLeft, ChevronRight, CircleUser } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleUser, Book } from 'lucide-react';
 import { CreditCard, HomeIcon, LogOut, Mail } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -18,6 +18,8 @@ export default function Sidebar() {
     ? "Facturation" 
     : pathname?.includes('contact') 
     ? "Contact" 
+    : pathname?.includes('guide')
+    ? "Guide"
     : "Accueil";
 
   const setPage = (item: string): void => {
@@ -30,6 +32,7 @@ export default function Sidebar() {
       "Accueil": "/home",
       "Facturation": "/billing",
       "Contact": "/contact",
+      "Guide": "/guide",
     };
     router.push(pageMapping[item]);
   };
@@ -92,6 +95,7 @@ export default function Sidebar() {
           <SidebarItem icon={<HomeIcon size={20} />} name="Accueil" />
           <SidebarItem icon={<CreditCard size={20} />} name="Facturation" />
           <SidebarItem icon={<Mail size={20} />} name="Contact" />
+          <SidebarItem icon={<Book size={20} />} name="Guide" />
           <SidebarItem icon={<LogOut size={20} />} name="Déconnexion" />
         </ul>
         <div className="flex p-3">

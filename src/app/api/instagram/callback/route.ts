@@ -104,6 +104,19 @@ export async function POST(request: Request) {
 
     const { access_token: longLivedToken, expires_in } = await longLivedTokenResponse.json()
 
+    // Enable webhook subscriptions
+    const webhookSubscriptionResponse = await fetch(
+      `https://graph.instagram.com/me/subscribed_apps?subscribed_fields=comments,messages,message_reactions,messaging_referral,messaging_optins,messaging_postbacks,messaging_seen,live_comments&access_token=${longLivedToken}`,
+      {
+        method: 'POST',
+      }
+    )
+
+    if (!webhookSubscriptionResponse.ok) {
+      console.error('Failed to enable webhook subscriptions:', await webhookSubscriptionResponse.text())
+      // Continue with the flow even if webhook subscription fails
+    }
+
     // Store Instagram data in user's profile
     const instagramData: InstagramProfile = {
       username: instagramUserData.username,

@@ -44,11 +44,8 @@ export default function TopBar() {
         };
     }, [session]);
 
-    // Early return if conditions aren't met
-    if (profile?.subscription?.is_active) {
-        return null;
-    }
-    return (
+    if (profile?.subscription?.is_active === false) {
+        return (
             <header className="h-10 z-10">
                 <nav className="h-full flex items-center justify-center bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-white shadow-md px-6">
                     <div className="flex items-center space-x-4">
@@ -75,4 +72,9 @@ export default function TopBar() {
                 </nav>
             </header>
     );
+    }
+
+    return null;
+
+
 }

@@ -31,7 +31,7 @@ export default function Home() {
       }
       const profile: Profile = await res.json();
       setProfile(profile);
-      
+
       // Set active step based on profile status
       if (profile?.onboarding_form?.status !== 'finished') {
         setActiveStep('onboarding');
@@ -40,7 +40,7 @@ export default function Home() {
       } else {
         setActiveStep('analytics');
       }
-      
+
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -64,7 +64,7 @@ export default function Home() {
       if (data.username && data.userId && data.access_token && data.token_expires && data.updated_at) {
         setProfile((prevProfile) => {
           if (!prevProfile) return null;
-          
+
           return {
             ...prevProfile,
             instagram: {
@@ -77,11 +77,11 @@ export default function Home() {
           };
         });
       }
-      
+
       if (data.biography) {
         setProfile((prevProfile) => {
           if (!prevProfile || !prevProfile.instagram) return prevProfile;
-          
+
           return {
             ...prevProfile,
             instagram: {
@@ -108,7 +108,7 @@ export default function Home() {
 
   const toggleSetter = async () => {
     if (!profile) return;
-    
+
     setIsUpdating(true);
     try {
       const response = await fetch('/api/profile', {
@@ -181,7 +181,7 @@ export default function Home() {
         {/* Step Cards */}
         <div className="grid md:grid-cols-3 gap-4">
           {/* Step 1: Onboarding */}
-          <Card 
+          <Card
             className={`cursor-pointer transition-all ${activeStep === 'onboarding' ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'}`}
             onClick={() => handleStepChange('onboarding')}
           >
@@ -202,7 +202,7 @@ export default function Home() {
           </Card>
 
           {/* Step 2: Chat */}
-          <Card 
+          <Card
             className={`cursor-pointer transition-all ${!isOnboardingCompleted ? 'opacity-50' : activeStep === 'chat' ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'}`}
             onClick={() => isOnboardingCompleted && handleStepChange('chat')}
           >
@@ -223,7 +223,7 @@ export default function Home() {
           </Card>
 
           {/* Step 3: Analytics */}
-          <Card 
+          <Card
             className={`cursor-pointer transition-all ${!isAnalyticsAvailable ? 'opacity-50' : activeStep === 'analytics' ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'}`}
             onClick={() => isAnalyticsAvailable && handleStepChange('analytics')}
           >
@@ -252,7 +252,7 @@ export default function Home() {
                   <h3 className="text-xl font-semibold text-green-600 mb-2">Configuration terminée !</h3>
                   <p className="text-gray-600">Ces informations vont maintenant nous permettre de personnaliser votre setter</p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
-                    <Button 
+                    <Button
                       variant="outline"
                       onClick={() => {
                         if (profile) {
@@ -268,7 +268,7 @@ export default function Home() {
                     >
                       Recommencer la configuration
                     </Button>
-                    <GradientButton 
+                    <GradientButton
                       onClick={() => handleStepChange('chat')}
                     >
                       Passer à l&apos;étape suivante
@@ -374,13 +374,20 @@ export default function Home() {
                             <TableRow>
                               <TableCell colSpan={4} className="text-center py-8">
                                 <div className="flex flex-col items-center justify-center space-y-4">
-                                  <Image 
-                                    src="/images/cat_desk.svg" 
-                                    alt="Aucune conversation" 
-                                    width={250} 
-                                    height={250} 
+                                  <Image
+                                    src="/images/cat_desk.svg"
+                                    alt="Aucune conversation"
+                                    width={250}
+                                    height={250}
                                   />
                                   <p className="text-gray-500 font-medium">Aucune conversation à afficher pour le moment</p>
+                                </div>
+                                <div className="flex flex-col items-center justify-center gap-4 mt-6">
+                                  <GradientButton
+                                    onClick={() => router.push('/guide')}
+                                  >
+                                    Maximiser l&apos;efficacité de mon setter
+                                  </GradientButton>
                                 </div>
                               </TableCell>
                             </TableRow>
