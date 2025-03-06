@@ -59,7 +59,7 @@ export default function Guide() {
           <h3 className="text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
           <ul className="list-disc pl-5 mb-4 space-y-2">
             <li>Encouragez vos clients existants à vous mentionner dans leurs publications</li>
-            <li>Créez des campagnes "Mentionnez-nous pour..." avec un incitatif</li>
+            <li>Créez des campagnes &quot;Mentionnez-nous pour...&quot; avec un incitatif</li>
             <li>Partagez et réagissez aux stories où vous êtes mentionné pour encourager d&apos;autres à faire de même</li>
             <li>Collaborez avec des influenceurs qui vous mentionneront</li>
             <li>Créez des événements virtuels avec un hashtag dédié et encouragez les mentions</li>
@@ -79,9 +79,9 @@ export default function Guide() {
           <h3 className="text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
           <ul className="list-disc pl-5 mb-4 space-y-2">
             <li>Ajoutez des stickers interactifs à vos stories (questions, sondages, quiz)</li>
-            <li>Créez des stories qui incitent à l&apos;action ("Envoyez-moi un message pour...")</li>
+            <li>Créez des stories qui incitent à l&apos;action (&quot;Envoyez-moi un message pour...&quot;)</li>
             <li>Partagez des offres exclusives disponibles uniquement via message direct</li>
-            <li>Mettez en place un appel à l&apos;action clair dans votre bio ("DM pour plus d&apos;infos")</li>
+            <li>Mettez en place un appel à l&apos;action clair dans votre bio (&quot;DM pour plus d&apos;infos&quot;)</li>
             <li>Utilisez les fonctionnalités de liens dans les stories avec un CTA fort</li>
           </ul>
         </CardContent>
