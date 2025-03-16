@@ -64,11 +64,11 @@ export default function ForgotPassword() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-white">
-      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 bg-white">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text text-center px-4">
         Mot de passe oublié
       </h1>
-      <Card className="w-full max-w-lg mx-auto">
+      <Card className="w-[95%] sm:w-full max-w-lg mx-auto">
         <CardContent className="pt-6">
         </CardContent>
         <Transition key="forgot-password">

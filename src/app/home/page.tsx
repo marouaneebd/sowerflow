@@ -176,10 +176,10 @@ export default function Home() {
   const isAnalyticsAvailable = isOnboardingCompleted && profile?.subscription?.is_active;
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="container mx-auto py-4 px-2 sm:py-8 sm:px-4">
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-8">
         {/* Step Cards */}
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
           {/* Step 1: Onboarding */}
           <Card
             className={`cursor-pointer transition-all ${activeStep === 'onboarding' ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:shadow-md'}`}
@@ -187,12 +187,14 @@ export default function Home() {
           >
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold">1</span>
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold">1</span>
+                  <CardTitle className="text-base sm:text-lg">Configuration</CardTitle>
+                </div>
                 {isOnboardingCompleted && (
                   <span className="text-green-500">✓</span>
                 )}
               </div>
-              <CardTitle className="text-lg mt-2">Configuration</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600">
@@ -208,12 +210,14 @@ export default function Home() {
           >
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold">2</span>
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold">2</span>
+                  <CardTitle className="text-base sm:text-lg">Chat</CardTitle>
+                </div>
                 {isSubscriptionActive && (
                   <span className="text-green-500">✓</span>
                 )}
               </div>
-              <CardTitle className="text-lg mt-2">Chat</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600">
@@ -229,9 +233,11 @@ export default function Home() {
           >
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold">3</span>
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold">3</span>
+                  <CardTitle className="text-base sm:text-lg">Tableau de bord</CardTitle>
+                </div>
               </div>
-              <CardTitle className="text-lg mt-2">Tableau de bord</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600">
@@ -242,18 +248,19 @@ export default function Home() {
         </div>
 
         {/* Content based on active step */}
-        <div className="mt-8">
+        <div className="mt-4 sm:mt-8">
           {activeStep === 'onboarding' && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md">
               {profile && profile?.onboarding_form?.status !== 'finished' ? (
                 <OnboardingForm profile={profile} onComplete={checkProfileStatus} />
               ) : (
-                <div className="text-center py-8">
-                  <h3 className="text-xl font-semibold text-green-600 mb-2">Configuration terminée !</h3>
-                  <p className="text-gray-600">Ces informations vont maintenant nous permettre de personnaliser votre setter</p>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+                <div className="text-center py-6 sm:py-8">
+                  <h3 className="text-lg sm:text-xl font-semibold text-green-600 mb-2">Configuration terminée !</h3>
+                  <p className="text-gray-600 text-sm sm:text-base">Ces informations vont maintenant nous permettre de personnaliser votre setter</p>
+                  <div className="flex flex-col gap-3 mt-6">
                     <Button
                       variant="outline"
+                      className="w-full sm:w-auto"
                       onClick={() => {
                         if (profile) {
                           setProfile({
@@ -269,6 +276,7 @@ export default function Home() {
                       Recommencer la configuration
                     </Button>
                     <GradientButton
+                      className="w-full sm:w-auto"
                       onClick={() => handleStepChange('chat')}
                     >
                       Passer à l&apos;étape suivante
@@ -280,15 +288,15 @@ export default function Home() {
           )}
 
           {activeStep === 'chat' && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md">
               <Chat />
             </div>
           )}
 
           {activeStep === 'analytics' && analytics && (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-3 gap-4">
+            <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm text-gray-600">
@@ -296,7 +304,7 @@ export default function Home() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-2xl font-bold">{analytics.stats.totalConversations}</p>
+                      <p className="text-xl sm:text-2xl font-bold">{analytics.stats.totalConversations}</p>
                     </CardContent>
                   </Card>
 
@@ -307,27 +315,27 @@ export default function Home() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-2xl font-bold">{analytics.stats.settedConversations}</p>
+                      <p className="text-xl sm:text-2xl font-bold">{analytics.stats.settedConversations}</p>
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card className="sm:col-span-2 md:col-span-1">
                     <CardHeader>
                       <CardTitle className="text-sm text-gray-600">
                         Taux de conversion
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-2xl font-bold">{analytics.stats.conversionRate}%</p>
+                      <p className="text-xl sm:text-2xl font-bold">{analytics.stats.conversionRate}%</p>
                     </CardContent>
                   </Card>
                 </div>
 
                 <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
+                  <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
                     <CardTitle>Conversations Récentes</CardTitle>
-                    <div className="flex items-center bg-white rounded-lg shadow-sm border p-3 space-x-3">
-                      <div className="flex flex-col space-y-1">
+                    <div className="flex items-center bg-white rounded-lg shadow-sm border p-2 sm:p-3 space-x-3 w-full sm:w-auto">
+                      <div className="flex flex-col space-y-1 flex-1 sm:flex-none">
                         <span className={`text-sm ${isUpdating ? 'text-gray-400' : profile?.stop_setter ? 'text-red-500' : 'text-emerald-500'}`}>
                           {isUpdating ? 'Mise à jour...' : profile?.stop_setter ? 'Setter inactif' : 'Setter actif'}
                         </span>
@@ -341,21 +349,21 @@ export default function Home() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto -mx-3 sm:mx-0">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Utilisateur</TableHead>
-                            <TableHead>Statut</TableHead>
-                            <TableHead>Date de création</TableHead>
-                            <TableHead>Dernière mise à jour</TableHead>
+                            <TableHead className="whitespace-nowrap">Utilisateur</TableHead>
+                            <TableHead className="whitespace-nowrap">Statut</TableHead>
+                            <TableHead className="whitespace-nowrap hidden sm:table-cell">Date de création</TableHead>
+                            <TableHead className="whitespace-nowrap hidden sm:table-cell">Dernière mise à jour</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {analytics.conversations.length > 0 ? (
                             analytics.conversations.map((conversation, index) => (
                               <TableRow key={index}>
-                                <TableCell>
+                                <TableCell className="whitespace-nowrap">
                                   <a
                                     href={`https://www.instagram.com/${conversation.scoped_user_username}`}
                                     target="_blank"
@@ -365,25 +373,27 @@ export default function Home() {
                                     {conversation.scoped_user_username}
                                   </a>
                                 </TableCell>
-                                <TableCell>{conversation.status}</TableCell>
-                                <TableCell>{new Date(conversation.created_at).toLocaleDateString()}</TableCell>
-                                <TableCell>{new Date(conversation.updated_at).toLocaleDateString()}</TableCell>
+                                <TableCell className="whitespace-nowrap">{conversation.status}</TableCell>
+                                <TableCell className="whitespace-nowrap hidden sm:table-cell">{new Date(conversation.created_at).toLocaleDateString()}</TableCell>
+                                <TableCell className="whitespace-nowrap hidden sm:table-cell">{new Date(conversation.updated_at).toLocaleDateString()}</TableCell>
                               </TableRow>
                             ))
                           ) : (
                             <TableRow>
-                              <TableCell colSpan={4} className="text-center py-8">
+                              <TableCell colSpan={4} className="text-center py-6 sm:py-8">
                                 <div className="flex flex-col items-center justify-center space-y-4">
                                   <Image
                                     src="/images/cat_desk.svg"
                                     alt="Aucune conversation"
-                                    width={250}
-                                    height={250}
+                                    width={200}
+                                    height={200}
+                                    className="w-48 sm:w-64"
                                   />
-                                  <p className="text-gray-500 font-medium">Aucune conversation à afficher pour le moment</p>
+                                  <p className="text-gray-500 font-medium text-sm sm:text-base">Aucune conversation à afficher pour le moment</p>
                                 </div>
-                                <div className="flex flex-col items-center justify-center gap-4 mt-6">
+                                <div className="flex flex-col items-center justify-center gap-3 mt-4 sm:mt-6">
                                   <GradientButton
+                                    className="w-full sm:w-auto"
                                     onClick={() => router.push('/guide')}
                                   >
                                     Maximiser l&apos;efficacité de mon setter

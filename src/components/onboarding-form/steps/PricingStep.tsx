@@ -33,38 +33,64 @@ export default function PricingStep({ pricing, updateFormData }: PricingStepProp
 
   return (
     <div className="space-y-4">
-      <Label>Quel est le prix du produit/service, et y a-t-il des options ou formules disponibles ?</Label>
+      <Label className="text-sm sm:text-base">
+        Quel est le prix du produit/service, et y a-t-il des options ou formules disponibles ?
+      </Label>
       {pricing.map((item, index) => (
-        <div key={index} className="flex items-center space-x-2">
-          <Input value={item.name} readOnly />
-          <Input value={`${item.price}€`} readOnly />
-          <Button type="button" variant="ghost" onClick={() => removePricing(index)}>
-            <X className="h-4 w-4" />
-          </Button>
+        <div key={index} className="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <div className="flex-1">
+            <Input 
+              value={item.name} 
+              readOnly 
+              className="text-xs sm:text-sm"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Input 
+              value={`${item.price}€`} 
+              readOnly 
+              className="text-xs sm:text-sm"
+            />
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={() => removePricing(index)}
+              className="p-1 sm:p-2"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       ))}
-      <div className="flex items-end space-x-2">
-        <div className="flex-1">
-          <Label htmlFor="newName">Nom du produit</Label>
+      <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
+        <div className="flex-1 space-y-1">
+          <Label htmlFor="newName" className="text-xs sm:text-sm">Nom du produit</Label>
           <Input
             id="newName"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Nom du produit"
+            className="text-xs sm:text-sm"
           />
         </div>
-        <div className="flex-1">
-          <Label htmlFor="newPrice">Prix (€)</Label>
+        <div className="flex-1 space-y-1">
+          <Label htmlFor="newPrice" className="text-xs sm:text-sm">Prix (€)</Label>
           <Input
             id="newPrice"
             type="number"
             value={newPrice}
             onChange={(e) => setNewPrice(e.target.value)}
             placeholder="Prix"
+            className="text-xs sm:text-sm"
           />
         </div>
-        <Button type="button" onClick={addPricing}>
-          <Plus className="h-4 w-4" />
+        <Button 
+          type="button" 
+          onClick={addPricing}
+          className="w-full sm:w-auto mt-2 sm:mt-0"
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          <span className="text-xs sm:text-sm">Ajouter</span>
         </Button>
       </div>
     </div>

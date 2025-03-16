@@ -197,18 +197,23 @@ export default function OnboardingFormComponent({ profile, onComplete }: Props) 
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-white">
-      <Card className="w-full max-w-lg mx-auto">
-        <CardContent className="pt-6">
+    <div className="flex flex-col items-center justify-center p-2 sm:p-6 bg-white">
+      <Card className="w-full max-w-lg mx-auto shadow-lg">
+        <CardContent className="pt-4 sm:pt-6">
           <ProgressBar currentStep={step} totalSteps={8} />
         </CardContent>
         <form onSubmit={handleSubmit}>
-          <CardContent className="min-h-[200px]">
+          <CardContent className="min-h-[200px] px-3 sm:px-6">
             {renderStep()}
           </CardContent>
-          <CardFooter className={`flex ${step === 1 ? 'justify-end' : 'justify-between'}`}>
+          <CardFooter className={`flex flex-col sm:flex-row gap-3 sm:gap-0 ${step === 1 ? 'sm:justify-end' : 'sm:justify-between'} p-3 sm:p-6`}>
             {step > 1 && (
-              <Button type="button" variant="outline" onClick={prevStep}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={prevStep}
+                className="w-full sm:w-auto"
+              >
                 Précédent
               </Button>
             )}
@@ -217,6 +222,7 @@ export default function OnboardingFormComponent({ profile, onComplete }: Props) 
                 type="button"
                 onClick={nextStep}
                 disabled={!isStepValid()}
+                className="w-full sm:w-auto"
               >
                 Suivant
               </GradientButton>
@@ -225,6 +231,7 @@ export default function OnboardingFormComponent({ profile, onComplete }: Props) 
                 type="submit"
                 isLoading={isSubmitting}
                 disabled={!isStepValid()}
+                className="w-full sm:w-auto"
               >
                 Soumettre
               </GradientButton>

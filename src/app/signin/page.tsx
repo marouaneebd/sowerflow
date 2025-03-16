@@ -56,11 +56,11 @@ export default function Signin() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-white">
-      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 bg-white">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-8 bg-gradient-to-r from-[#ff6b2b] to-[#d22dfc] text-transparent bg-clip-text text-center px-4">
         Connexion
       </h1>
-      <Card className="w-full max-w-lg mx-auto">
+      <Card className="w-[95%] sm:w-full max-w-lg mx-auto">
         <CardContent className="pt-6">
         </CardContent>
         <Transition key="signin">
@@ -86,14 +86,12 @@ export default function Signin() {
                     onChange={(e) => updateFormData('password', e.target.value)}
                     required
                   />
-                  <div className="flex justify-end">
-                  <Link href="/forgot-password">
-                    <Button variant="link" className="p-0 h-auto text-sm text-gray-400 hover:text-gray-900 ml-auto">
-                      Mot de passe oublié ?
-                    </Button>
-                  </Link>
-                  </div>
                 </div>
+              </div>
+              <div className="flex justify-end mt-2">
+                <Link href="/forgot-password" className="text-sm text-gray-400 hover:text-gray-900">
+                  Mot de passe oublié ?
+                </Link>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-2">

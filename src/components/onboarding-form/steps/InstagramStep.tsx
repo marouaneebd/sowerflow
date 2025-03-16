@@ -42,41 +42,41 @@ export default function InstagramStep({ instagram, instagramBio }: InstagramStep
     <div className="space-y-4">
       <div>
         {instagram ? (
-          <div className="space-y-2">
-            <p className="text-green-600">
+          <div className="space-y-3">
+            <p className="text-green-600 text-sm sm:text-base">
               ✓ Compte Instagram connecté: @{instagram}
             </p>
             {instagramBio && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-sm font-medium mb-2">Votre bio Instagram:</h3>
-                <p className="text-sm text-gray-600">{instagramBio}</p>
+              <div className="mt-4 p-3 sm:p-4 bg-gray-50 rounded-lg">
+                <h3 className="text-xs sm:text-sm font-medium mb-2">Votre bio Instagram:</h3>
+                <p className="text-xs sm:text-sm text-gray-600">{instagramBio}</p>
               </div>
             )}
           </div>
         ) : (
-          <div className="space-y-2">
-            <Label htmlFor="instagram">Connecte ton compte Instagram</Label>
+          <div className="space-y-3">
+            <Label htmlFor="instagram" className="text-sm sm:text-base">Connecte ton compte Instagram</Label>
 
             {isLoading ? (
-              <div className="flex items-center justify-center p-4">
-                <span className="text-sm text-gray-500">Chargement...</span>
+              <div className="flex items-center justify-center p-3 sm:p-4">
+                <span className="text-xs sm:text-sm text-gray-500">Chargement...</span>
               </div>
             ) : !isConnected ? (
               <Button
                 onClick={handleInstagramLogin}
-                className="w-full flex items-center justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2 py-2 sm:py-3 text-sm sm:text-base"
               >
-                <InstagramIcon className="w-5 h-5" />
+                <InstagramIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 Se connecter avec Instagram
               </Button>
             ) : (
-              <div className="flex items-center gap-2 p-2 bg-green-50 rounded-md">
+              <div className="flex items-center gap-2 p-2 sm:p-3 bg-green-50 rounded-md">
                 <span className="text-green-600">✓</span>
-                <span>Connecté en tant que @{instagram}</span>
+                <span className="text-xs sm:text-sm">Connecté en tant que @{instagram}</span>
               </div>
             )}
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-xs sm:text-sm text-red-500">{error}</p>}
           </div>
         )}
       </div>

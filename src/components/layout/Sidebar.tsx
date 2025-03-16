@@ -6,7 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Sidebar() {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const router = useRouter();
   const { data: session } = useSession();
   const pathname = usePathname(); // Hook to get the current path
@@ -44,9 +44,14 @@ export default function Sidebar() {
       <button onClick={() => setPage(name)}>
         <li
           className={`
-            relative flex items-center py-2 px-3 my-1
+            relative flex items-center
             font-medium rounded-md cursor-pointer
             transition-colors group
+            ${
+              expanded 
+                ? "py-1.5 px-2 my-1" 
+                : "p-1.5 mx-3 my-1"
+            }
             ${active ? "bg-gradient-to-tr bg-gray-100 text-gray-800" : "hover:bg-gray-600 text-gray-200"}
           `}
         >
