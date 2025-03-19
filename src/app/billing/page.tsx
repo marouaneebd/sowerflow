@@ -65,7 +65,7 @@ const Billing = () => {
           <div className="text-center">
             <h2 className="text-2xl font-semibold mb-4">Portail de facturation</h2>
             <p className="text-gray-600 mb-6">
-              Si le portail ne s'est pas ouvert automatiquement ou si vous l'avez fermé, cliquez sur le bouton ci-dessous pour le réouvrir.
+              Si le portail ne s&apos;est pas ouvert automatiquement ou si vous l&apos;avez fermé, cliquez sur le bouton ci-dessous pour le réouvrir.
             </p>
             <GradientButton
               onClick={openBillingPortal}

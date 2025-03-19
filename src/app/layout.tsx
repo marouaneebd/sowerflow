@@ -1,6 +1,5 @@
 import './globals.css';
 import SessionProvider from './SessionProvider';
-import TopBar from '@/components/layout/TopBar';
 import { Montserrat } from 'next/font/google'
 import Hotjar from '@/components/Hotjar';
 import { NewSidebar, SiteHeader } from "@/components/layout/NewSidebar"
