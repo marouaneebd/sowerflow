@@ -16,6 +16,8 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized - wrong secret' }, { status: 401 });
   }
 
+  console.log('Cron job started');
+
   try {
     // Get the oldest conversation with status 'sending_message'
     const conversationsRef = adminDb.collection('conversations');
@@ -24,6 +26,8 @@ export async function GET(req: Request) {
       .orderBy('updated_at', 'asc')
       .limit(1)
       .get();
+
+    console.log('Conversations snapshot:', querySnapshot.docs.length);
 
     if (querySnapshot.empty) {
       return NextResponse.json({ message: 'No conversations to process' });
@@ -38,6 +42,8 @@ export async function GET(req: Request) {
       .where('instagram.userId', '==', conversation.instagram_user_id)
       .limit(1)
       .get();
+
+    console.log('Profiles snapshot:', profileSnapshot.docs.length);
 
     if (profileSnapshot.empty) {
       throw new Error('Profile not found');
