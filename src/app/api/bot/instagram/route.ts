@@ -12,6 +12,7 @@ export const maxDuration = 60;
 export async function GET(req: Request) {
 
   console.log('Cron job started');
+  console.log(req.headers);
 
   // Verify cron secret
   const cronSecret = req.headers.get('x-cron-secret');
