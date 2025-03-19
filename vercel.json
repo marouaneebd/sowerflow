@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/bot/instagram",
-      "schedule": "5 * * * *"
+      "schedule": "* * * * *"
     }
   ]
 } 
