@@ -13,6 +13,15 @@ import { Analytics } from '@/types/analytics';
 import Chat from '@/components/demo-chat/Chat';
 import Image from 'next/image';
 
+const conversation_status = {
+  sending_message: 'En cours',
+  waiting_message: 'En attente de réponse',
+  setted: 'Réussi',
+  abandoned: 'Abandonné',
+  ignored: 'Ignoré',
+  waiting_payment: 'Bloqué pour non paiement'
+}
+
 export default function Home() {
   const router = useRouter();
   const { status } = useSession();
@@ -250,17 +259,17 @@ export default function Home() {
         {/* Content based on active step */}
         <div className="mt-4 sm:mt-8">
           {activeStep === 'onboarding' && (
-            <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md">
+            <div>
               {profile && profile?.onboarding_form?.status !== 'finished' ? (
                 <OnboardingForm profile={profile} onComplete={checkProfileStatus} />
               ) : (
                 <div className="text-center py-6 sm:py-8">
                   <h3 className="text-lg sm:text-xl font-semibold text-green-600 mb-2">Configuration terminée !</h3>
                   <p className="text-gray-600 text-sm sm:text-base">Ces informations vont maintenant nous permettre de personnaliser votre setter</p>
-                  <div className="flex flex-col gap-3 mt-6">
+                  <div className="flex flex-col items-center gap-3 mt-6 max-w-sm mx-auto">
                     <Button
                       variant="outline"
-                      className="w-full sm:w-auto"
+                      className="w-full"
                       onClick={() => {
                         if (profile) {
                           setProfile({
@@ -276,7 +285,7 @@ export default function Home() {
                       Recommencer la configuration
                     </Button>
                     <GradientButton
-                      className="w-full sm:w-auto"
+                      className="w-full"
                       onClick={() => handleStepChange('chat')}
                     >
                       Passer à l&apos;étape suivante
@@ -288,13 +297,13 @@ export default function Home() {
           )}
 
           {activeStep === 'chat' && (
-            <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md">
+            <div>
               <Chat />
             </div>
           )}
 
           {activeStep === 'analytics' && analytics && (
-            <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md">
+            <div>
               <div className="space-y-4 sm:space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                   <Card>
@@ -373,7 +382,7 @@ export default function Home() {
                                     {conversation.scoped_user_username}
                                   </a>
                                 </TableCell>
-                                <TableCell className="whitespace-nowrap">{conversation.status}</TableCell>
+                                <TableCell className="whitespace-nowrap">{conversation_status[conversation.status as keyof typeof conversation_status]}</TableCell>
                                 <TableCell className="whitespace-nowrap hidden sm:table-cell">{new Date(conversation.created_at).toLocaleDateString()}</TableCell>
                                 <TableCell className="whitespace-nowrap hidden sm:table-cell">{new Date(conversation.updated_at).toLocaleDateString()}</TableCell>
                               </TableRow>

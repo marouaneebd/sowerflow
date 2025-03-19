@@ -56,6 +56,8 @@ export default function MessagesStep({ messages, updateFormData }: MessagesStepP
         </div>
         <Button type="button" onClick={addMessage}>
           <Plus className="h-4 w-4" />
+          <span className="text-xs sm:text-sm">Ajouter</span>
+
         </Button>
       </div>
     </div>

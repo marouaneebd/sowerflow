@@ -197,8 +197,8 @@ export default function OnboardingFormComponent({ profile, onComplete }: Props) 
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-2 sm:p-6 bg-white">
-      <Card className="w-full max-w-lg mx-auto shadow-lg">
+    <div className="flex flex-col items-center justify-center bg-white">
+      <Card className="w-full max-w-5xl sm:max-w-lg mx-auto shadow-lg">
         <CardContent className="pt-4 sm:pt-6">
           <ProgressBar currentStep={step} totalSteps={8} />
         </CardContent>

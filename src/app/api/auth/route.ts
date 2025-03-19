@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
       email: email,
       subscription: {
         plan: 'trial',
+        is_active: false,
         stripe_customer_id: stripeCustomer.id,
         credits_used: 0,
         end_date: new Date(new Date().setHours(0, 0, 0, 0))

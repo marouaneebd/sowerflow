@@ -1,11 +1,12 @@
 import './globals.css';
 import SessionProvider from './SessionProvider';
-import Sidebar from '@/components/layout/Sidebar';
 import TopBar from '@/components/layout/TopBar';
 import { Montserrat } from 'next/font/google'
 import Hotjar from '@/components/Hotjar';
+import { NewSidebar, SiteHeader } from "@/components/layout/NewSidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
-const montserrat = Montserrat({ 
+const montserrat = Montserrat({
   subsets: ['latin'],
   variable: '--font-montserrat',
 })
@@ -32,13 +33,17 @@ export default async function RootLayout({
       <body className={`${montserrat.className} h-screen bg-white`}>
         <SessionProvider>
           <div className="flex h-screen flex-col">
-            <TopBar />
-            <div className="flex flex-1 overflow-hidden">
-              <Sidebar />
-              <main className="flex-1 overflow-auto">
-                {children}
-              </main>
-            </div>
+            <SidebarProvider>
+              <NewSidebar variant="inset" />
+              <SidebarInset>
+                <SiteHeader />
+                <div className="flex flex-1 overflow-hidden">
+                  <main className="flex-1 overflow-auto">
+                    {children}
+                  </main>
+                </div>
+              </SidebarInset>
+            </SidebarProvider>
           </div>
         </SessionProvider>
       </body>

@@ -6,20 +6,20 @@ import { GradientButton } from '@/components/onboarding-form/GradientButton';
 export default function Guide() {
   const router = useRouter();
   return (
-    <div className="container mx-auto py-10 px-4 md:px-6 max-w-5xl">
-      <h1 className="text-4xl font-bold mb-8 text-center">Guide d&apos;Utilisation de votre Setter</h1>
+    <div className="container mx-auto py-6 sm:py-10 px-3 sm:px-6 max-w-5xl">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 text-center">Guide d&apos;Utilisation de votre Setter</h1>
       
-      <p className="text-lg mb-8 text-center">
+      <p className="text-base sm:text-lg mb-6 sm:mb-8 text-center">
         Votre setter vous permet d&apos;automatiser les conversations avec les personnes qui interagissent avec votre profil Instagram. 
         Voici les différents événements qui peuvent déclencher l&apos;envoi de messages automatiques.
       </p>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-2xl">Qu&apos;est-ce qu&apos;un déclencheur ?</CardTitle>
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-xl sm:text-2xl">Qu&apos;est-ce qu&apos;un déclencheur ?</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4">
+          <p className="text-sm sm:text-base mb-3 sm:mb-4">
             Un déclencheur est une action effectuée par un utilisateur Instagram qui interagit avec votre contenu. 
             Lorsqu&apos;un de ces événements se produit, notre système peut automatiquement envoyer un message personnalisé à cette personne, 
             augmentant ainsi vos chances de convertir cet intérêt en rendez-vous commercial.
@@ -27,17 +27,17 @@ export default function Guide() {
         </CardContent>
       </Card>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-2xl">Les commentaires</CardTitle>
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-xl sm:text-2xl">Les commentaires</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4">
+          <p className="text-sm sm:text-base mb-3 sm:mb-4">
             Chaque fois qu&apos;une personne commente l&apos;une de vos publications ou vidéos en direct, notre système peut être déclenché.
           </p>
           
-          <h3 className="text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
-          <ul className="list-disc pl-5 mb-4 space-y-2">
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
+          <ul className="list-disc pl-4 sm:pl-5 mb-3 sm:mb-4 space-y-1.5 sm:space-y-2 text-sm sm:text-base">
             <li>Publiez régulièrement du contenu qui suscite des réactions (questions, sondages, débats)</li>
             <li>Terminez vos posts avec une question pour encourager les commentaires</li>
             <li>Organisez des sessions en direct et encouragez l&apos;interaction</li>
@@ -47,17 +47,17 @@ export default function Guide() {
         </CardContent>
       </Card>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-2xl">Les mentions</CardTitle>
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-xl sm:text-2xl">Les mentions</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4">
+          <p className="text-sm sm:text-base mb-3 sm:mb-4">
             Lorsqu&apos;une personne vous mentionne (@votrecompte) dans une publication ou un commentaire, notre système peut envoyer un message automatisé.
           </p>
           
-          <h3 className="text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
-          <ul className="list-disc pl-5 mb-4 space-y-2">
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
+          <ul className="list-disc pl-4 sm:pl-5 mb-3 sm:mb-4 space-y-1.5 sm:space-y-2 text-sm sm:text-base">
             <li>Encouragez vos clients existants à vous mentionner dans leurs publications</li>
             <li>Créez des campagnes &quot;Mentionnez-nous pour...&quot; avec un incitatif</li>
             <li>Partagez et réagissez aux stories où vous êtes mentionné pour encourager d&apos;autres à faire de même</li>
@@ -67,17 +67,17 @@ export default function Guide() {
         </CardContent>
       </Card>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-2xl">Les messages directs</CardTitle>
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-xl sm:text-2xl">Les messages directs</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4">
+          <p className="text-sm sm:text-base mb-3 sm:mb-4">
             Notre système peut répondre automatiquement aux personnes qui vous envoient un message direct ou qui répondent à votre story.
           </p>
           
-          <h3 className="text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
-          <ul className="list-disc pl-5 mb-4 space-y-2">
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
+          <ul className="list-disc pl-4 sm:pl-5 mb-3 sm:mb-4 space-y-1.5 sm:space-y-2 text-sm sm:text-base">
             <li>Ajoutez des stickers interactifs à vos stories (questions, sondages, quiz)</li>
             <li>Créez des stories qui incitent à l&apos;action (&quot;Envoyez-moi un message pour...&quot;)</li>
             <li>Partagez des offres exclusives disponibles uniquement via message direct</li>
@@ -87,17 +87,17 @@ export default function Guide() {
         </CardContent>
       </Card>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-2xl">Réponses aux publicités (Reels, Carrousel, etc.)</CardTitle>
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-xl sm:text-2xl">Réponses aux publicités (Reels, Carrousel, etc.)</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-4">
+          <p className="text-sm sm:text-base mb-3 sm:mb-4">
             Lorsque quelqu&apos;un interagit avec vos publicités Instagram, notre système peut également être déclenché.
           </p>
           
-          <h3 className="text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
-          <ul className="list-disc pl-5 mb-4 space-y-2">
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">Comment maximiser ces déclencheurs ?</h3>
+          <ul className="list-disc pl-4 sm:pl-5 mb-3 sm:mb-4 space-y-1.5 sm:space-y-2 text-sm sm:text-base">
             <li>Créez des publicités qui encouragent les commentaires</li>
             <li>Utilisez des publicités avec des boutons CTA qui dirigent vers une conversation</li>
             <li>Testez différents formats publicitaires (carrousel, stories, reels) pour maximiser l&apos;engagement</li>
@@ -107,9 +107,9 @@ export default function Guide() {
         </CardContent>
       </Card>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
-        <h3 className="text-xl font-bold text-green-800 mb-3">Conseils supplémentaires pour maximiser les déclencheurs</h3>
-        <ul className="list-disc pl-5 mb-4 space-y-3 text-green-700">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+        <h3 className="text-lg sm:text-xl font-bold text-green-800 mb-2 sm:mb-3">Conseils supplémentaires pour maximiser les déclencheurs</h3>
+        <ul className="list-disc pl-4 sm:pl-5 mb-3 sm:mb-4 space-y-2 sm:space-y-3 text-green-700 text-sm sm:text-base">
           <li>
             <strong>Soyez cohérent :</strong> Publiez régulièrement pour maintenir votre audience engagée
           </li>
@@ -131,6 +131,7 @@ export default function Guide() {
       <div className="text-center">
         <GradientButton
           onClick={() => router.push('/home')}
+          className="w-full sm:w-auto"
         >
           Commencer à configurer mes automatisations
         </GradientButton>

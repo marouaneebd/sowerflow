@@ -180,14 +180,14 @@ export default function Contact() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24 bg-white">
-      <div className="max-w-4xl w-full">
-        <h1 className="text-2xl font-bold mb-6">Contactez-nous</h1>
+    <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-24 bg-white">
+      <div className="w-full max-w-4xl">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Contactez-nous</h1>
         
         {/* Form Section */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6 sm:mb-8">
           {submitStatus && (
-            <div className={`p-4 mb-6 rounded-md ${
+            <div className={`p-3 sm:p-4 mb-4 sm:mb-6 rounded-md ${
               submitStatus.type === 'success' 
                 ? 'bg-green-50 text-green-800 border border-green-200' 
                 : 'bg-red-50 text-red-800 border border-red-200'
@@ -196,16 +196,16 @@ export default function Contact() {
             </div>
           )}
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
               <FormField
                 control={form.control}
                 name="subject"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sujet</FormLabel>
+                    <FormLabel className="text-sm sm:text-base">Sujet</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-sm sm:text-base">
                           <SelectValue placeholder="Sélectionnez un sujet" />
                         </SelectTrigger>
                       </FormControl>
@@ -216,7 +216,7 @@ export default function Contact() {
                         <SelectItem value="other">Autre</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs sm:text-sm" />
                   </FormItem>
                 )}
               />
@@ -225,19 +225,19 @@ export default function Contact() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel className="text-sm sm:text-base">Description</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Décrivez votre demande..."
-                        className="resize-none"
+                        className="resize-none text-sm sm:text-base min-h-[100px]"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs sm:text-sm" />
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
                 {isSubmitting ? 'Envoi en cours...' : 'Envoyer'}
               </Button>
             </form>
@@ -246,23 +246,23 @@ export default function Contact() {
 
         {/* Tickets Section */}
         {tickets.length > 0 && (
-          <div className="mt-12">
-            <h2 className="text-xl font-semibold mb-6">Vos demandes précédentes</h2>
-            <div className="space-y-4">
+          <div className="mt-8 sm:mt-12">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">Vos demandes précédentes</h2>
+            <div className="space-y-3 sm:space-y-4">
               {tickets.map((ticket) => (
-                <div key={ticket.id} className="bg-white rounded-lg shadow-sm border p-6">
-                  <div className="flex justify-between items-start mb-4">
+                <div key={ticket.id} className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0 mb-3 sm:mb-4">
                     <div>
-                      <h3 className="text-lg font-medium">{subjectLabels[ticket.subject]}</h3>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <h3 className="text-base sm:text-lg font-medium">{subjectLabels[ticket.subject]}</h3>
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">
                         Créé le {formatDate(ticket.created_at)}
                       </p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm border ${statusColors[ticket.status]}`}>
+                    <span className={`self-start px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm border ${statusColors[ticket.status]}`}>
                       {statusLabels[ticket.status]}
                     </span>
                   </div>
-                  <p className="text-gray-700 whitespace-pre-wrap">{ticket.description}</p>
+                  <p className="text-sm sm:text-base text-gray-700 whitespace-pre-wrap">{ticket.description}</p>
                 </div>
               ))}
             </div>
