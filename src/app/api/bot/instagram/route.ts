@@ -10,13 +10,16 @@ export const maxDuration = 60;
 
 // This will be called by Vercel Cron
 export async function GET(req: Request) {
+
+  console.log('Cron job started');
+
   // Verify cron secret
   const cronSecret = req.headers.get('x-cron-secret');
   if (cronSecret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized - wrong secret' }, { status: 401 });
   }
 
-  console.log('Cron job started');
+  console.log('Cron job secret verified');
 
   try {
     // Get the oldest conversation with status 'sending_message'
