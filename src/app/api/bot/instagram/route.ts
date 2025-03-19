@@ -12,12 +12,11 @@ export const maxDuration = 60;
 export async function GET(req: Request) {
 
   console.log('Cron job started');
-  console.log(req.headers);
 
-  // Verify cron secret
-  const cronSecret = req.headers.get('x-cron-secret');
-  if (cronSecret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized - wrong secret' }, { status: 401 });
+  // Verify cron secret from authorization header
+  const authHeader = req.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   console.log('Cron job secret verified');
