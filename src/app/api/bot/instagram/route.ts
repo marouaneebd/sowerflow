@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   // Verify cron secret
   const cronSecret = req.headers.get('x-cron-secret');
   if (cronSecret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized - wrong secret' }, { status: 401 });
   }
 
   try {
