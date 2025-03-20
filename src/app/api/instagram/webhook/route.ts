@@ -193,7 +193,7 @@ async function processConversationEvent(uuid: string, instagram_user_id: string,
 
     // Check if conversation is ignored or event already exists
     if (conversation.status === 'ignored' ||
-      conversation.events.some(e => e.event_details === event.event_details) ||
+      conversation.events.some(e => event.type === 'message' && event.event_details?.message?.mid === e.event_details?.message?.mid) ||
       ((event.type === 'comments' ||
       event.type === 'live_comments') &&
       conversation.status !== 'abandoned')
