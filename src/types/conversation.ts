@@ -61,6 +61,7 @@ export interface InstagramMessageEvent {
     type: string;
     payload: {
       url: string;
+      title?: string;
     };
   }>;
   is_echo?: boolean;

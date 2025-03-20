@@ -122,6 +122,8 @@ export async function GET(req: Request) {
 
     const instagramMessageData = await instagramResponse.json();
 
+    console.log('Instagram message data:', instagramMessageData);
+
     // Create new event for the sent message
     const newEvent: Event = {
       date: Date.now(),

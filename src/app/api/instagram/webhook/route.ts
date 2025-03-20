@@ -132,6 +132,14 @@ export async function POST(request: NextRequest) {
             description += messagingEvent.message.text;
           }
 
+          if (messagingEvent?.message?.attachments) {
+            for (const attachment of messagingEvent.message.attachments) {
+              if (attachment.payload?.title) {
+                description += `L'utilisateur a envoyé une pièce jointe dont le titre est ${attachment?.payload?.title}`;
+              }
+            }
+          }
+
           const event: Event = {
             date: messagingEvent.timestamp,
             type: messagingEvent?.message ? 'message' : messagingEvent?.reaction ? 'message_reactions' : messagingEvent?.postback ? 'messaging_postbacks' : messagingEvent?.referral ? 'messaging_referral' : 'messaging_seen',
