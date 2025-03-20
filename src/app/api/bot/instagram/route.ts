@@ -122,8 +122,6 @@ export async function GET(req: Request) {
 
     const instagramMessageData = await instagramResponse.json();
 
-    console.log('Instagram message data:', instagramMessageData);
-
     // Create new event for the sent message
     const newEvent: Event = {
       date: Date.now(),
@@ -132,7 +130,7 @@ export async function GET(req: Request) {
       description: aiResponse,
       event_details: {
         message: {
-          mid: instagramMessageData.id,
+          mid: instagramMessageData.message_id,
           text: aiResponse,
           is_echo: false
         }
